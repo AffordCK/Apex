@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/koker/huawei/LinuxRelease/SDK/main.cpp
+util.h
+/home/koker/huawei/LinuxRelease/SDK/util.h
+
+/home/koker/huawei/LinuxRelease/SDK/robot.h
+sstream
+-
+cmath
+-
+
+/home/koker/huawei/LinuxRelease/SDK/util.h
+iostream
+-
+robot.h
+/home/koker/huawei/LinuxRelease/SDK/robot.h
+
