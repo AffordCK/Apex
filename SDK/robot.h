@@ -1,9 +1,7 @@
 /**
  * @file robot.cpp
- * @author koker
  * @brief define the robot class, which implement some member varibles including the state
  *                of the robot and supply the interface for the scheduler to control the robot
- * @version 0.1
  * @date 2023-03-10
  * 
  * @copyright Copyright (c) 2023
@@ -14,6 +12,7 @@
 
 #include <string>
 #include <cmath>
+#include "basic.h"
 
 using namespace std;
 
@@ -25,6 +24,7 @@ enum RobotState{
 
 class Robot{
 public:
+    friend class Scheduler;
     Robot(int _id);
 
     string ToTarget(double linespeed, double anglespeed, double x, double y, double head, double xTarget, double yTarget);
@@ -37,10 +37,10 @@ public:
     string Destory(){ return "destory " + to_string(id) + " \n"; }
 private:
     RobotState state;
-    int id;
-    int goodType;
+    int id, goodType, stationId;
     double time, collision; 
     double radius, mass;
+    double lineSpeedX, lineSpeedY, angleSpeed, head, x, y;
 };
 
 #endif

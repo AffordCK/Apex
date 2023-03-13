@@ -8,10 +8,7 @@ int main() {
     Scheduler scheduler;
     sleep(20);
     scheduler.ReadMap();
-    // SendOK();
-    while(scheduler.ReadFrame()){
-        scheduler.SendCommand();
-    }
+    scheduler.Work();
     fclose(logFile);
     return 0;
 }

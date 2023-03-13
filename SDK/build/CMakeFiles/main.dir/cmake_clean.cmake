@@ -1,9 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/main.dir/frame.cpp.o"
+  "CMakeFiles/main.dir/global.cpp.o"
   "CMakeFiles/main.dir/main.cpp.o"
   "CMakeFiles/main.dir/robot.cpp.o"
   "CMakeFiles/main.dir/scheduler.cpp.o"
-  "CMakeFiles/main.dir/util.cpp.o"
   "main.pdb"
   "main"
 )

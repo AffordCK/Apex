@@ -22,10 +22,18 @@ static const double DELIVER_RADIUS = 0.53; // the radius of the robot with goods
  */
 Robot::Robot(int _id): id(_id){
     state = AVAILABLE;
-    goodType = 0;
-    time = collision = 0.0;
+    goodType = EMPTY;
+    stationId = 0;
+    time = 0.0;
+    collision = 0.0;
     radius = NORMAL_RADIUS;
     mass = AREA_OF_RADIUS(radius);
+    lineSpeedX = 0.0;
+    lineSpeedY = 0.0;
+    angleSpeed = 0.0;
+    head = 0.0;
+    x = 0.0;
+    y = 0.0;
 }
 
 /**

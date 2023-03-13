@@ -123,32 +123,32 @@ main/fast:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 .PHONY : main/fast
 
-frame.o: frame.cpp.o
+global.o: global.cpp.o
 
-.PHONY : frame.o
+.PHONY : global.o
 
 # target to build an object file
-frame.cpp.o:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/frame.cpp.o
-.PHONY : frame.cpp.o
+global.cpp.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/global.cpp.o
+.PHONY : global.cpp.o
 
-frame.i: frame.cpp.i
+global.i: global.cpp.i
 
-.PHONY : frame.i
+.PHONY : global.i
 
 # target to preprocess a source file
-frame.cpp.i:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/frame.cpp.i
-.PHONY : frame.cpp.i
+global.cpp.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/global.cpp.i
+.PHONY : global.cpp.i
 
-frame.s: frame.cpp.s
+global.s: global.cpp.s
 
-.PHONY : frame.s
+.PHONY : global.s
 
 # target to generate assembly for a file
-frame.cpp.s:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/frame.cpp.s
-.PHONY : frame.cpp.s
+global.cpp.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/global.cpp.s
+.PHONY : global.cpp.s
 
 main.o: main.cpp.o
 
@@ -231,33 +231,6 @@ scheduler.cpp.s:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/scheduler.cpp.s
 .PHONY : scheduler.cpp.s
 
-util.o: util.cpp.o
-
-.PHONY : util.o
-
-# target to build an object file
-util.cpp.o:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util.cpp.o
-.PHONY : util.cpp.o
-
-util.i: util.cpp.i
-
-.PHONY : util.i
-
-# target to preprocess a source file
-util.cpp.i:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util.cpp.i
-.PHONY : util.cpp.i
-
-util.s: util.cpp.s
-
-.PHONY : util.s
-
-# target to generate assembly for a file
-util.cpp.s:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util.cpp.s
-.PHONY : util.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -267,9 +240,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... main"
 	@echo "... edit_cache"
-	@echo "... frame.o"
-	@echo "... frame.i"
-	@echo "... frame.s"
+	@echo "... global.o"
+	@echo "... global.i"
+	@echo "... global.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
@@ -279,9 +252,6 @@ help:
 	@echo "... scheduler.o"
 	@echo "... scheduler.i"
 	@echo "... scheduler.s"
-	@echo "... util.o"
-	@echo "... util.i"
-	@echo "... util.s"
 .PHONY : help
 
 
