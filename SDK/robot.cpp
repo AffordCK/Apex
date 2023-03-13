@@ -24,6 +24,7 @@ Robot::Robot(int _id): id(_id){
     state = AVAILABLE;
     goodType = EMPTY;
     stationId = 0;
+    task = RobotTask();
     time = 0.0;
     collision = 0.0;
     radius = NORMAL_RADIUS;
@@ -37,26 +38,22 @@ Robot::Robot(int _id): id(_id){
 }
 
 /**
+ * @brief set the target of the robot
+ */
+void Robot::SetTarget(double _targetX, double _targetY, int _stationId, RobotState _state){
+    task.targetStationId = _stationId;
+    task.targetX = _targetX;
+    task.targetY = _targetY;
+    state = _state;
+}
+
+/**
  * @brief calcuate the control signal of the robot
  */
-string Robot::ToTarget(double linespeed, double anglespeed, double x, double y, double head, double xTarget, double yTarget){
+string Robot::ToTarget(){
     // step 1: check whether reach the target
-    double dist = pow(xTarget - x, 2) + pow(yTarget - y, 2);
-    if(abs(dist) <= LIMIT_TARGET){
-        if(state == PICK_UP){
-            state = DELIVER_GOODS;
-            return Buy();
-        }else if(state == DELIVER_GOODS){
-            state = AVAILABLE;
-            return Sell();
-        }
-    }
+    
     // step2: adjust the direction of the robot
-    double theta = atan2(yTarget - y, xTarget == x? (0.01): xTarget - x);
-    if(abs(theta - head) <= LIMIT_ANGLE){ // don't need to rotate
-        return LatControl(dist, linespeed);
-    }
-    return "";
 
     // step3: go straight
 }

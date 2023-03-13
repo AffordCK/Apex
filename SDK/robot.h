@@ -16,6 +16,13 @@
 
 using namespace std;
 
+struct RobotTask{
+    int targetStationId;
+    double targetX, targetY;
+    RobotTask(int _targetStationId = STATION0, double _targetX = 0.0, double _targetY = 0.0): \
+        targetStationId(_targetStationId), targetX(_targetX), targetY(_targetY){}
+};
+
 enum RobotState{
     AVAILABLE,
     PICK_UP,
@@ -27,7 +34,8 @@ public:
     friend class Scheduler;
     Robot(int _id);
 
-    string ToTarget(double linespeed, double anglespeed, double x, double y, double head, double xTarget, double yTarget);
+    void SetTarget(double _targetX, double _targetY, int _stationId, RobotState _state);
+    string ToTarget();
     string LatControl(double dist, double linespeed);
 
     string Forward(double linespeed){ return "forward " + to_string(id) + " " + to_string(linespeed) + "\n"; }
@@ -38,6 +46,7 @@ public:
 private:
     RobotState state;
     int id, goodType, stationId;
+    struct RobotTask task;
     double time, collision; 
     double radius, mass;
     double lineSpeedX, lineSpeedY, angleSpeed, head, x, y;
