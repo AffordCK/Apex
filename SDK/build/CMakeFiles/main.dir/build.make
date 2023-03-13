@@ -57,9 +57,33 @@ include CMakeFiles/main.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/main.dir/flags.make
 
+CMakeFiles/main.dir/frame.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/frame.cpp.o: ../frame.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/main.dir/frame.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/frame.cpp.o -c /home/koker/huawei/LinuxRelease/SDK/frame.cpp
+
+CMakeFiles/main.dir/frame.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/frame.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/koker/huawei/LinuxRelease/SDK/frame.cpp > CMakeFiles/main.dir/frame.cpp.i
+
+CMakeFiles/main.dir/frame.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/frame.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/koker/huawei/LinuxRelease/SDK/frame.cpp -o CMakeFiles/main.dir/frame.cpp.s
+
+CMakeFiles/main.dir/frame.cpp.o.requires:
+
+.PHONY : CMakeFiles/main.dir/frame.cpp.o.requires
+
+CMakeFiles/main.dir/frame.cpp.o.provides: CMakeFiles/main.dir/frame.cpp.o.requires
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/frame.cpp.o.provides.build
+.PHONY : CMakeFiles/main.dir/frame.cpp.o.provides
+
+CMakeFiles/main.dir/frame.cpp.o.provides.build: CMakeFiles/main.dir/frame.cpp.o
+
+
 CMakeFiles/main.dir/main.cpp.o: CMakeFiles/main.dir/flags.make
 CMakeFiles/main.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/main.dir/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/main.dir/main.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/main.cpp.o -c /home/koker/huawei/LinuxRelease/SDK/main.cpp
 
 CMakeFiles/main.dir/main.cpp.i: cmake_force
@@ -81,17 +105,97 @@ CMakeFiles/main.dir/main.cpp.o.provides: CMakeFiles/main.dir/main.cpp.o.requires
 CMakeFiles/main.dir/main.cpp.o.provides.build: CMakeFiles/main.dir/main.cpp.o
 
 
+CMakeFiles/main.dir/robot.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/robot.cpp.o: ../robot.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/main.dir/robot.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/robot.cpp.o -c /home/koker/huawei/LinuxRelease/SDK/robot.cpp
+
+CMakeFiles/main.dir/robot.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/robot.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/koker/huawei/LinuxRelease/SDK/robot.cpp > CMakeFiles/main.dir/robot.cpp.i
+
+CMakeFiles/main.dir/robot.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/robot.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/koker/huawei/LinuxRelease/SDK/robot.cpp -o CMakeFiles/main.dir/robot.cpp.s
+
+CMakeFiles/main.dir/robot.cpp.o.requires:
+
+.PHONY : CMakeFiles/main.dir/robot.cpp.o.requires
+
+CMakeFiles/main.dir/robot.cpp.o.provides: CMakeFiles/main.dir/robot.cpp.o.requires
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/robot.cpp.o.provides.build
+.PHONY : CMakeFiles/main.dir/robot.cpp.o.provides
+
+CMakeFiles/main.dir/robot.cpp.o.provides.build: CMakeFiles/main.dir/robot.cpp.o
+
+
+CMakeFiles/main.dir/scheduler.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/scheduler.cpp.o: ../scheduler.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/main.dir/scheduler.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/scheduler.cpp.o -c /home/koker/huawei/LinuxRelease/SDK/scheduler.cpp
+
+CMakeFiles/main.dir/scheduler.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/scheduler.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/koker/huawei/LinuxRelease/SDK/scheduler.cpp > CMakeFiles/main.dir/scheduler.cpp.i
+
+CMakeFiles/main.dir/scheduler.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/scheduler.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/koker/huawei/LinuxRelease/SDK/scheduler.cpp -o CMakeFiles/main.dir/scheduler.cpp.s
+
+CMakeFiles/main.dir/scheduler.cpp.o.requires:
+
+.PHONY : CMakeFiles/main.dir/scheduler.cpp.o.requires
+
+CMakeFiles/main.dir/scheduler.cpp.o.provides: CMakeFiles/main.dir/scheduler.cpp.o.requires
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/scheduler.cpp.o.provides.build
+.PHONY : CMakeFiles/main.dir/scheduler.cpp.o.provides
+
+CMakeFiles/main.dir/scheduler.cpp.o.provides.build: CMakeFiles/main.dir/scheduler.cpp.o
+
+
+CMakeFiles/main.dir/util.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/util.cpp.o: ../util.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/main.dir/util.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/util.cpp.o -c /home/koker/huawei/LinuxRelease/SDK/util.cpp
+
+CMakeFiles/main.dir/util.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/util.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/koker/huawei/LinuxRelease/SDK/util.cpp > CMakeFiles/main.dir/util.cpp.i
+
+CMakeFiles/main.dir/util.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/util.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/koker/huawei/LinuxRelease/SDK/util.cpp -o CMakeFiles/main.dir/util.cpp.s
+
+CMakeFiles/main.dir/util.cpp.o.requires:
+
+.PHONY : CMakeFiles/main.dir/util.cpp.o.requires
+
+CMakeFiles/main.dir/util.cpp.o.provides: CMakeFiles/main.dir/util.cpp.o.requires
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util.cpp.o.provides.build
+.PHONY : CMakeFiles/main.dir/util.cpp.o.provides
+
+CMakeFiles/main.dir/util.cpp.o.provides.build: CMakeFiles/main.dir/util.cpp.o
+
+
 # Object files for target main
 main_OBJECTS = \
-"CMakeFiles/main.dir/main.cpp.o"
+"CMakeFiles/main.dir/frame.cpp.o" \
+"CMakeFiles/main.dir/main.cpp.o" \
+"CMakeFiles/main.dir/robot.cpp.o" \
+"CMakeFiles/main.dir/scheduler.cpp.o" \
+"CMakeFiles/main.dir/util.cpp.o"
 
 # External object files for target main
 main_EXTERNAL_OBJECTS =
 
+main: CMakeFiles/main.dir/frame.cpp.o
 main: CMakeFiles/main.dir/main.cpp.o
+main: CMakeFiles/main.dir/robot.cpp.o
+main: CMakeFiles/main.dir/scheduler.cpp.o
+main: CMakeFiles/main.dir/util.cpp.o
 main: CMakeFiles/main.dir/build.make
 main: CMakeFiles/main.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable main"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/main.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -99,7 +203,11 @@ CMakeFiles/main.dir/build: main
 
 .PHONY : CMakeFiles/main.dir/build
 
+CMakeFiles/main.dir/requires: CMakeFiles/main.dir/frame.cpp.o.requires
 CMakeFiles/main.dir/requires: CMakeFiles/main.dir/main.cpp.o.requires
+CMakeFiles/main.dir/requires: CMakeFiles/main.dir/robot.cpp.o.requires
+CMakeFiles/main.dir/requires: CMakeFiles/main.dir/scheduler.cpp.o.requires
+CMakeFiles/main.dir/requires: CMakeFiles/main.dir/util.cpp.o.requires
 
 .PHONY : CMakeFiles/main.dir/requires
 

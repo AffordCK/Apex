@@ -123,6 +123,33 @@ main/fast:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 .PHONY : main/fast
 
+frame.o: frame.cpp.o
+
+.PHONY : frame.o
+
+# target to build an object file
+frame.cpp.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/frame.cpp.o
+.PHONY : frame.cpp.o
+
+frame.i: frame.cpp.i
+
+.PHONY : frame.i
+
+# target to preprocess a source file
+frame.cpp.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/frame.cpp.i
+.PHONY : frame.cpp.i
+
+frame.s: frame.cpp.s
+
+.PHONY : frame.s
+
+# target to generate assembly for a file
+frame.cpp.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/frame.cpp.s
+.PHONY : frame.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -150,6 +177,87 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+robot.o: robot.cpp.o
+
+.PHONY : robot.o
+
+# target to build an object file
+robot.cpp.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/robot.cpp.o
+.PHONY : robot.cpp.o
+
+robot.i: robot.cpp.i
+
+.PHONY : robot.i
+
+# target to preprocess a source file
+robot.cpp.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/robot.cpp.i
+.PHONY : robot.cpp.i
+
+robot.s: robot.cpp.s
+
+.PHONY : robot.s
+
+# target to generate assembly for a file
+robot.cpp.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/robot.cpp.s
+.PHONY : robot.cpp.s
+
+scheduler.o: scheduler.cpp.o
+
+.PHONY : scheduler.o
+
+# target to build an object file
+scheduler.cpp.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/scheduler.cpp.o
+.PHONY : scheduler.cpp.o
+
+scheduler.i: scheduler.cpp.i
+
+.PHONY : scheduler.i
+
+# target to preprocess a source file
+scheduler.cpp.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/scheduler.cpp.i
+.PHONY : scheduler.cpp.i
+
+scheduler.s: scheduler.cpp.s
+
+.PHONY : scheduler.s
+
+# target to generate assembly for a file
+scheduler.cpp.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/scheduler.cpp.s
+.PHONY : scheduler.cpp.s
+
+util.o: util.cpp.o
+
+.PHONY : util.o
+
+# target to build an object file
+util.cpp.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util.cpp.o
+.PHONY : util.cpp.o
+
+util.i: util.cpp.i
+
+.PHONY : util.i
+
+# target to preprocess a source file
+util.cpp.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util.cpp.i
+.PHONY : util.cpp.i
+
+util.s: util.cpp.s
+
+.PHONY : util.s
+
+# target to generate assembly for a file
+util.cpp.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util.cpp.s
+.PHONY : util.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -159,9 +267,21 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... main"
 	@echo "... edit_cache"
+	@echo "... frame.o"
+	@echo "... frame.i"
+	@echo "... frame.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... robot.o"
+	@echo "... robot.i"
+	@echo "... robot.s"
+	@echo "... scheduler.o"
+	@echo "... scheduler.i"
+	@echo "... scheduler.s"
+	@echo "... util.o"
+	@echo "... util.i"
+	@echo "... util.s"
 .PHONY : help
 
 

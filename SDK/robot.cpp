@@ -11,36 +11,55 @@ static const double FRAME_PER_SECOND = 50;
 static const double MIN_SECOND = 0.02;
 static const double MAX_FORCE = 250;
 
+static const double NORMAL_RADIUS = 0.45; // the radius of the robot without goods
+static const double DELIVER_RADIUS = 0.53; // the radius of the robot with goods;
+
+
+#define AREA_OF_RADIUS(r) 0.5 * PI * r * r
+
+/**
+ * @brief Construct a new Robot:: Robot object
+ */
+Robot::Robot(int _id): id(_id){
+    state = AVAILABLE;
+    goodType = 0;
+    time = collision = 0.0;
+    radius = NORMAL_RADIUS;
+    mass = AREA_OF_RADIUS(radius);
+}
+
 /**
  * @brief calcuate the control signal of the robot
  */
-string Robot::toTarget(double linespeed, double anglespeed, double x, double y, double head, double xTarget, double yTarget){
+string Robot::ToTarget(double linespeed, double anglespeed, double x, double y, double head, double xTarget, double yTarget){
     // step 1: check whether reach the target
     double dist = pow(xTarget - x, 2) + pow(yTarget - y, 2);
     if(abs(dist) <= LIMIT_TARGET){
         if(state == PICK_UP){
             state = DELIVER_GOODS;
-            return buy();
+            return Buy();
         }else if(state == DELIVER_GOODS){
             state = AVAILABLE;
-            return sell();
+            return Sell();
         }
     }
-
-    double theta = atan2(yTarget - y, xTarget - x);
+    // step2: adjust the direction of the robot
+    double theta = atan2(yTarget - y, xTarget == x? (0.01): xTarget - x);
     if(abs(theta - head) <= LIMIT_ANGLE){ // don't need to rotate
-        return latControl(dist, linespeed);
+        return LatControl(dist, linespeed);
     }
     return "";
+
+    // step3: go straight
 }
 
 
 
-string Robot::latControl(double dist, double linespeed){
+string Robot::LatControl(double dist, double linespeed){
     double acceleration = MAX_FORCE / mass;
     double minDecelerationDist = pow(linespeed, 2) / (2 * acceleration);
     if(dist <= minDecelerationDist){
-        return forwardV(0.0);
+        return Forward(0.0);
     }
     return "";
 }

@@ -1,0 +1,5 @@
+break frame.cpp:20
+disable $bpnum
+break /home/koker/huawei/LinuxRelease/SDK/frame.cpp:39
+
+

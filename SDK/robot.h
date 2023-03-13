@@ -25,16 +25,16 @@ enum RobotState{
 
 class Robot{
 public:
-    Robot();
+    Robot(int _id);
 
-    string toTarget(double linespeed, double anglespeed, double x, double y, double head, double xTarget, double yTarget);
-    string latControl(double dist, double linespeed);
+    string ToTarget(double linespeed, double anglespeed, double x, double y, double head, double xTarget, double yTarget);
+    string LatControl(double dist, double linespeed);
 
-    string forwardV(double linespeed){ return "forward " + to_string(id) + " " + to_string(linespeed) + "\n"; }
-    string rotate(double anglespeed){ return "rotate " + to_string(id) + " " + to_string(anglespeed) + "\n"; };
-    string buy(){ return "buy " + to_string(id); };
-    string sell(){ return "sell " + to_string(id); }
-    string destory(){ return "destory " + to_string(id); }
+    string Forward(double linespeed){ return "forward " + to_string(id) + " " + to_string(linespeed) + "\n"; }
+    string Rotate(double anglespeed){ return "rotate " + to_string(id) + " " + to_string(anglespeed) + "\n"; };
+    string Buy(){ return "buy " + to_string(id) + " \n"; };
+    string Sell(){ return "sell " + to_string(id) + " \n"; }
+    string Destory(){ return "destory " + to_string(id) + " \n"; }
 private:
     RobotState state;
     int id;
