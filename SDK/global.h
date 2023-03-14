@@ -31,10 +31,13 @@ extern const double MAP_DIV2;
 
 extern const char *logFileName;
 extern FILE* logFile;
-extern vector<Good> GoodsTable;
-extern vector<StationInfo> StationsTable;
+extern const vector<Good> GoodsTable;
+extern const vector<StationInfo> StationsTable;
 
+// send "OK" to the stdout
 extern void SendOK();
+// return true if bit1 include bit2
+extern bool CheckIncludeBit2(int bit1, int bit2);
 
 #ifdef __cplusplus
 }

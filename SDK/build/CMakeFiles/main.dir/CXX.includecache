@@ -37,6 +37,8 @@ string
 -
 cmath
 -
+vector
+-
 basic.h
 /home/koker/huawei/LinuxRelease/SDK/basic.h
 
@@ -49,7 +51,7 @@ unordered_map
 -
 vector
 -
-queue
+bits/stdc++.h
 -
 string
 -

@@ -12,9 +12,9 @@
 using namespace std;
 
 /**
- * @brief the info of the good
+ * @brief the bit of each good, can't be used as indexes in GoodsTable
  */
-enum GoodType{
+enum GoodBit{
     EMPTY = 0,
     GOOD1 = (1 << 1),
     GOOD2 = (1 << 2),
@@ -26,9 +26,9 @@ enum GoodType{
 };
 
 /**
- * @brief Station id
+ * @brief Station Type, can be used as indexes in StationsTable
  */
-enum StationId{
+enum StationType{
     STATION0 = 0,
     STATION1,
     STATION2,
@@ -41,6 +41,9 @@ enum StationId{
     STATION9
 };
 
+/**
+ * @brief Good struct is a info of good
+ */
 struct Good{
     int source, producer;
     long long cost, price, profit;

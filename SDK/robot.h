@@ -12,19 +12,21 @@
 
 #include <string>
 #include <cmath>
+#include <vector>
 #include "basic.h"
 
 using namespace std;
 
 struct RobotTask{
-    int targetStationId;
+    int targetStationId, goodType;
     double targetX, targetY;
-    RobotTask(int _targetStationId = STATION0, double _targetX = 0.0, double _targetY = 0.0): \
-        targetStationId(_targetStationId), targetX(_targetX), targetY(_targetY){}
+    RobotTask(int _targetStationId = STATION0, int _goodType = 0, \
+        double _targetX = 0.0, double _targetY = 0.0): \
+        targetStationId(_targetStationId), goodType(_goodType), targetX(_targetX), targetY(_targetY){}
 };
 
 enum RobotState{
-    AVAILABLE,
+    AVAILABLE = 0,
     PICK_UP,
     DELIVER_GOODS,
 };
@@ -34,12 +36,12 @@ public:
     friend class Scheduler;
     Robot(int _id);
 
-    void SetTarget(double _targetX, double _targetY, int _stationId, RobotState _state);
+    void SetTarget(double _targetX, double _targetY, int _stationId, int _goodType, RobotState _state);
     string ToTarget();
     string LatControl(double dist, double linespeed);
 
-    string Forward(double linespeed){ return "forward " + to_string(id) + " " + to_string(linespeed) + "\n"; }
-    string Rotate(double anglespeed){ return "rotate " + to_string(id) + " " + to_string(anglespeed) + "\n"; };
+    string Forward(double _linespeed){ return "forward " + to_string(id) + " " + to_string(_linespeed) + "\n"; }
+    string Rotate(double _anglespeed){ return "rotate " + to_string(id) + " " + to_string(_anglespeed) + "\n"; };
     string Buy(){ return "buy " + to_string(id) + " \n"; };
     string Sell(){ return "sell " + to_string(id) + " \n"; }
     string Destory(){ return "destory " + to_string(id) + " \n"; }

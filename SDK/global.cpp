@@ -8,7 +8,7 @@ const double MAP_DIV2 = 0.5;
 const char *logFileName = "log.txt";
 FILE* logFile = freopen(logFileName, "a+", stderr);
 
-vector<Good> GoodsTable = {
+const vector<Good> GoodsTable = {
     Good(EMPTY, STATION0, 0, 0), // fill the first place
     Good(EMPTY, STATION1, 3000, 6000),
     Good(EMPTY, STATION2, 4400, 7600),
@@ -18,8 +18,8 @@ vector<Good> GoodsTable = {
     Good(GOOD2 | GOOD3, STATION6, 19200, 27500),
     Good(GOOD4 | GOOD5 | GOOD6, STATION7, 76000, 105000),
 };
-
-vector<StationInfo> StationsTable = {
+// goods type -> station type -> station id
+const vector<StationInfo> StationsTable = {
     StationInfo(EMPTY, 0, EMPTY),
     StationInfo(EMPTY, 50, GOOD1),
     StationInfo(EMPTY, 50, GOOD2),
@@ -35,4 +35,8 @@ vector<StationInfo> StationsTable = {
 void SendOK(){
     cout << "OK\n";
     fflush(stdout);
+}
+
+bool CheckIncludeBit2(int bit1, int bit2){
+    return (bit1 & bit2) == bit2;
 }

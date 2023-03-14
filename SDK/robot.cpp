@@ -40,8 +40,9 @@ Robot::Robot(int _id): id(_id){
 /**
  * @brief set the target of the robot
  */
-void Robot::SetTarget(double _targetX, double _targetY, int _stationId, RobotState _state){
+void Robot::SetTarget(double _targetX, double _targetY, int _stationId, int _goodType, RobotState _state){
     task.targetStationId = _stationId;
+    task.goodType = _goodType;
     task.targetX = _targetX;
     task.targetY = _targetY;
     state = _state;
@@ -52,7 +53,12 @@ void Robot::SetTarget(double _targetX, double _targetY, int _stationId, RobotSta
  */
 string Robot::ToTarget(){
     // step 1: check whether reach the target
-    
+    if(stationId == task.targetStationId){ // reach the target station
+        if(state == PICK_UP){
+            state = DELIVER_GOODS;
+        }
+    }
+    return "";
     // step2: adjust the direction of the robot
 
     // step3: go straight
