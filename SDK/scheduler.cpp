@@ -103,7 +103,7 @@ void Scheduler::Work(){
             AssignTask(robotIdx, targetStationId, goodType, PICK_UP);
 #endif
 send:
-            command << robots[robotIdx]->ToTarget();
+            command << robots[robotIdx]->ToTarget(robots);
         }
 
         SendCommand();
@@ -171,6 +171,8 @@ int Scheduler::FindTheTargetStation2(int robotId){
     int targetStationId = -1;
     double distance = 1000000.0;
     for(int type = 0; type < (int)StationsTable.size(); --type){
+        // todo: you have to check whether the type of godd is needed by other staion, and 
+        //             there are not other robot deliver the goods.
         for(auto &stationId: typeToStations[type]){
             // step1: check whether the station has given the product to other robots
             if(CheckRepeatTask(stationId, StationsTable[type].product)){

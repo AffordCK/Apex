@@ -19,7 +19,7 @@ static const double DENSITY = 20;
 static const double LIMIT_DIST = LIMIT_TARGET + 1;
 static const double MID_LINE_SPEED = 3;
 
-#define AREA_OF_RADIUS(r) 0.5 * PI * r * r
+#define AREA_OF_RADIUS(r) PI * r * r // thansk to Monkey-G
 #define MASS_OF_CIRCLE(r) AREA_OF_RADIUS(r) * DENSITY
 
 /**
@@ -56,7 +56,7 @@ void Robot::SetTarget(double _targetX, double _targetY, int _stationId, int _goo
 /**
  * @brief calcuate the control signal of the robot
  */
-string Robot::ToTarget(){
+string Robot::ToTarget(vector<shared_ptr<Robot>>& robots){
     // step 1: check whether reach the target
     if(stationId == task.targetStationId){ // reach the target station
         if(state == PICK_UP){

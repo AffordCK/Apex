@@ -14,6 +14,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include <memory>
 #include "global.h"
 
 using namespace std;
@@ -32,13 +33,13 @@ enum RobotState{
     DELIVER_GOODS,
 };
 
-class Robot{
+class Robot: public enable_shared_from_this<Robot> {
 public:
     friend class Scheduler;
     Robot(int _id);
 
     void SetTarget(double _targetX, double _targetY, int _stationId, int _goodType, RobotState _state);
-    string ToTarget();
+    string ToTarget(vector<shared_ptr<Robot>>& robots);
 
     string Forward(double _linespeed){ return "forward " + to_string(id) + " " + to_string(_linespeed) + "\n"; }
     string Rotate(double _anglespeed){ return "rotate " + to_string(id) + " " + to_string(_anglespeed) + "\n"; };
