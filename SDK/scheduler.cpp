@@ -38,17 +38,17 @@ bool Scheduler::ReadFrame(){
     {
         istringstream is(line);
         is >> frameId >> coins;
-        // cerr << frameId << ' ' << coins << endl;
+        cerr << frameId << ' ' << coins << endl;
     }
     getline(cin, line); // stationNum
-    // cerr << line << endl;
+    cerr << line << endl;
     for(size_t i = 0; i < stations.size(); ++i){ // stations' info
         getline(cin, line);
         istringstream is(line);
         is >> stations[i]->type >> stations[i]->x >> stations[i]->y >> stations[i]->leftFrame \
             >> stations[i]->sourceState >> stations[i]->productState;
-        // cerr << type << ' ' << posx << ' ' << posy << ' ' << stations[i]->leftFrame \
-        //     << ' ' << stations[i]->sourceState << ' ' << stations[i]->productState << endl;
+        cerr << stations[i]->type << ' ' << stations[i]->x << ' ' << stations[i]->y << ' ' << stations[i]->leftFrame \
+            << ' ' << stations[i]->sourceState << ' ' << stations[i]->productState << endl;
     }
     for(size_t i = 0; i < robots.size(); ++i){ // worker's info
         getline(cin, line);
@@ -57,18 +57,27 @@ bool Scheduler::ReadFrame(){
             >> robots[i]->collision >> robots[i]->angleSpeed \
             >> robots[i]->lineSpeedX >> robots[i]->lineSpeedY \
             >> robots[i]->head >> robots[i]->x >> robots[i]->y;
-        // cerr << robots[i]->stationId << ' ' << robots[i]->goodType << ' ' << robots[i]->time \
-        //     << ' ' << robots[i]->collision << ' ' << robots[i]->angleSpeed \
-        //     << ' ' << robots[i]->lineSpeedX << ' ' << robots[i]->lineSpeedY \
-        //     << ' ' << robots[i]->head << ' ' << robots[i]->x << ' ' << robots[i]->y << endl;
+        cerr << robots[i]->stationId << ' ' << robots[i]->goodType << ' ' << robots[i]->time \
+            << ' ' << robots[i]->collision << ' ' << robots[i]->angleSpeed \
+            << ' ' << robots[i]->lineSpeedX << ' ' << robots[i]->lineSpeedY \
+            << ' ' << robots[i]->head << ' ' << robots[i]->x << ' ' << robots[i]->y << endl;
     }
     getline(cin, line);
     return line == "OK";
 }
 
 void Scheduler::Work(){
+
+#ifdef TEST_ROBOT_MOVE
+    AssignTask(0, 0, 1, PICK_UP);
+    AssignTask(1, 7, 1, PICK_UP);
+    AssignTask(2, 23, 1, PICK_UP);
+    AssignTask(3, 30, 1, PICK_UP);
+#endif
+
     while(ReadFrame()){
         for(size_t robotIdx = 0; robotIdx < robots.size(); ++robotIdx){
+#ifndef TEST_ROBOT_MOVE
             int targetStationId = -1, goodType = robots[robotIdx]->goodType;
 
             // step1: check whether there are robot with goods, we will keep their way to target
@@ -92,10 +101,11 @@ void Scheduler::Work(){
             if(targetStationId == -1){ continue; } // this should not happend
             goodType = StationsTable[stations[targetStationId]->type].product;
             AssignTask(robotIdx, targetStationId, goodType, PICK_UP);
-
-send:       
+#endif
+send:
             command << robots[robotIdx]->ToTarget();
         }
+
         SendCommand();
     }
 }
@@ -141,12 +151,12 @@ int Scheduler::FindTheTargetStation(int robotId, int goodType){
                 continue;
             }
             // step4: check whether the station is closer
-            double distanceTemp = abs(robots[robotId]->x - stations[stationId]->x) + \
-                abs(robots[robotId]->y - stations[stationId]->y);
+            double distanceTemp = CalculateManhDistance(robots[robotId]->x, robots[robotId]->y, \
+               stations[stationId]->x, stations[stationId]->y);
             if(leftSourceTemp == leftSource && distanceTemp < distance){
                 distance = distanceTemp;
                 targetStationId =stationId;
-            }   
+            }
         }
         // step5: select the highest level of station
         if(targetStationId != -1){ break; }
@@ -160,13 +170,17 @@ int Scheduler::FindTheTargetStation(int robotId, int goodType){
 int Scheduler::FindTheTargetStation2(int robotId){
     int targetStationId = -1;
     double distance = 1000000.0;
-    for(int type = (int)StationsTable.size() - 1; type != 0; --type){
+    for(int type = 0; type < (int)StationsTable.size(); --type){
         for(auto &stationId: typeToStations[type]){
             // step1: check whether the station has given the product to other robots
             if(CheckRepeatTask(stationId, StationsTable[type].product)){
                 continue;
             }
-            // step2: select the closer station
+            // step2: check whether the station has a product
+            if(!stations[stationId]->productState){
+                continue;
+            }
+            // step3: select the closer station
             double distanceTemp = abs(robots[robotId]->x - stations[stationId]->x) + \
                 abs(robots[robotId]->y - stations[stationId]->y);
             if(distanceTemp < distance){
@@ -206,11 +220,7 @@ bool Scheduler::CheckRepeatTask(int stationId, int goodType){
  */
 void Scheduler::AssignTask(int robotId, int stationId, int goodType, RobotState state){
     // handle robot side
-    robots[robotId]->state = state;
-    robots[robotId]->task.goodType = goodType;
-    robots[robotId]->task.targetStationId = stationId;
-    robots[robotId]->task.targetX = stations[stationId]->x;
-    robots[robotId]->task.targetY = stations[stationId]->y;
+    robots[robotId]->SetTarget(stations[stationId]->x, stations[stationId]->y, stationId, goodType, state);
     // update the taskTable
     taskTable[robotId][0] = goodType;
     taskTable[robotId][1] = stationId;

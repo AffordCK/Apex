@@ -6,7 +6,7 @@ extern FILE* logFile;
 
 int main() {
     Scheduler scheduler;
-    sleep(20);
+    // sleep(20);
     scheduler.ReadMap();
     scheduler.Work();
     fclose(logFile);

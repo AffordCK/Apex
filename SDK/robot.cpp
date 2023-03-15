@@ -6,7 +6,7 @@ static const double MAX_LINE_SPEED = 6;
 static const double MIN_ANGLE_SPEED = -PI;
 static const double MAX_ANGLE_SPEED = PI;
 static const double LIMIT_TARGET = 0.4;
-static const double LIMIT_ANGLE = 0.1;
+static const double LIMIT_ANGLE = 0.3;
 static const double FRAME_PER_SECOND = 50;
 static const double MIN_SECOND = 0.02;
 static const double MAX_FORCE = 250;
@@ -14,8 +14,13 @@ static const double MAX_FORCE = 250;
 static const double NORMAL_RADIUS = 0.45; // the radius of the robot without goods
 static const double DELIVER_RADIUS = 0.53; // the radius of the robot with goods;
 
+static const double DENSITY = 20;
+
+static const double LIMIT_DIST = LIMIT_TARGET + 1;
+static const double MID_LINE_SPEED = 3;
 
 #define AREA_OF_RADIUS(r) 0.5 * PI * r * r
+#define MASS_OF_CIRCLE(r) AREA_OF_RADIUS(r) * DENSITY
 
 /**
  * @brief Construct a new Robot:: Robot object
@@ -28,7 +33,7 @@ Robot::Robot(int _id): id(_id){
     time = 0.0;
     collision = 0.0;
     radius = NORMAL_RADIUS;
-    mass = AREA_OF_RADIUS(radius);
+    mass = MASS_OF_CIRCLE(radius);
     lineSpeedX = 0.0;
     lineSpeedY = 0.0;
     angleSpeed = 0.0;
@@ -45,7 +50,7 @@ void Robot::SetTarget(double _targetX, double _targetY, int _stationId, int _goo
     task.goodType = _goodType;
     task.targetX = _targetX;
     task.targetY = _targetY;
-    state = _state;
+    ChangeStateTo(_state);
 }
 
 /**
@@ -56,21 +61,41 @@ string Robot::ToTarget(){
     if(stationId == task.targetStationId){ // reach the target station
         if(state == PICK_UP){
             state = DELIVER_GOODS;
+            return Buy();
         }
+        state = AVAILABLE;      // finish the job
+        return Sell();
     }
-    return "";
-    // step2: adjust the direction of the robot
-
-    // step3: go straight
+    
+    string ret = "";
+    double distance = CalculateManhDistance(x, y, task.targetX, task.targetY);
+    double interAngle = head - atan2(task.targetY - y, task.targetX - x);
+    
+    if(abs(interAngle) > LIMIT_ANGLE){
+        // step2: adjust the direction of the robot firstly
+        ret += ((interAngle > 0)? Rotate(MIN_ANGLE_SPEED): Rotate(MAX_ANGLE_SPEED));
+        // step3: go straight, just be ensure that the robot can't go outside
+        ret += Forward(MID_LINE_SPEED);
+    }else{
+        ret += Rotate(-interAngle);
+        ret += (distance < LIMIT_DIST? Forward(MID_LINE_SPEED): Forward(MAX_LINE_SPEED));
+    }
+    return ret;
 }
 
-
-
-string Robot::LatControl(double dist, double linespeed){
-    double acceleration = MAX_FORCE / mass;
-    double minDecelerationDist = pow(linespeed, 2) / (2 * acceleration);
-    if(dist <= minDecelerationDist){
-        return Forward(0.0);
+void Robot::ChangeStateTo(RobotState _state){
+    state = _state;
+    switch(state){
+        case AVAILABLE:
+        case PICK_UP:
+            radius = NORMAL_RADIUS;
+            mass = MASS_OF_CIRCLE(radius);
+            break;
+        case DELIVER_GOODS:
+            radius = DELIVER_RADIUS;
+            mass = MASS_OF_CIRCLE(radius);
+            break;
+        default:
+            cerr << id << " has been set error state " << state << endl;
     }
-    return "";
 }

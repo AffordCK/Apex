@@ -2,8 +2,8 @@
 
 const int MAP_ROWS = 100;
 const int MAP_COLS = 100;
-const double MAP_DIV1 = 1.0;
-const double MAP_DIV2 = 0.5;
+const double MAP_DIV1 = 0.5;
+const double MAP_DIV2 = 0.25;
 
 const char *logFileName = "log.txt";
 FILE* logFile = freopen(logFileName, "a+", stderr);
@@ -39,4 +39,12 @@ void SendOK(){
 
 bool CheckIncludeBit2(int bit1, int bit2){
     return (bit1 & bit2) == bit2;
+}
+
+double CalculateManhDistance(double x1, double y1, double x2, double y2){
+    return abs(x1 - x2) + abs(y1 - y2);
+}
+
+double CalculateEucliDistance(double x1, double y1, double x2, double y2){
+    return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }

@@ -19,6 +19,8 @@ iostream
 -
 vector
 -
+cmath
+-
 basic.h
 /home/koker/huawei/LinuxRelease/SDK/basic.h
 
@@ -39,8 +41,10 @@ cmath
 -
 vector
 -
-basic.h
-/home/koker/huawei/LinuxRelease/SDK/basic.h
+iostream
+-
+global.h
+/home/koker/huawei/LinuxRelease/SDK/global.h
 
 /home/koker/huawei/LinuxRelease/SDK/scheduler.cpp
 scheduler.h

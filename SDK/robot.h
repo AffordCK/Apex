@@ -13,7 +13,8 @@
 #include <string>
 #include <cmath>
 #include <vector>
-#include "basic.h"
+#include <iostream>
+#include "global.h"
 
 using namespace std;
 
@@ -38,13 +39,14 @@ public:
 
     void SetTarget(double _targetX, double _targetY, int _stationId, int _goodType, RobotState _state);
     string ToTarget();
-    string LatControl(double dist, double linespeed);
 
     string Forward(double _linespeed){ return "forward " + to_string(id) + " " + to_string(_linespeed) + "\n"; }
     string Rotate(double _anglespeed){ return "rotate " + to_string(id) + " " + to_string(_anglespeed) + "\n"; };
     string Buy(){ return "buy " + to_string(id) + " \n"; };
     string Sell(){ return "sell " + to_string(id) + " \n"; }
     string Destory(){ return "destory " + to_string(id) + " \n"; }
+
+    inline void ChangeStateTo(RobotState _state);
 private:
     RobotState state;
     int id, goodType, stationId;
