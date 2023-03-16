@@ -17,7 +17,7 @@ static const double DELIVER_RADIUS = 0.53; // the radius of the robot with goods
 static const double DENSITY = 20;
 
 static const double LIMIT_DIST = LIMIT_TARGET + 1;
-static const double MID_LINE_SPEED = 3;
+static const double MID_LINE_SPEED = 2;
 
 #define AREA_OF_RADIUS(r) PI * r * r // thansk to Monkey-G
 #define MASS_OF_CIRCLE(r) AREA_OF_RADIUS(r) * DENSITY
@@ -60,10 +60,10 @@ string Robot::ToTarget(vector<shared_ptr<Robot>>& robots){
     // step 1: check whether reach the target
     if(stationId == task.targetStationId){ // reach the target station
         if(state == PICK_UP){
-            state = DELIVER_GOODS;
+            ChangeStateTo(DELIVER_GOODS);
             return Buy();
         }
-        state = AVAILABLE;      // finish the job
+        ChangeStateTo(AVAILABLE);      // finish the job
         return Sell();
     }
     
@@ -71,13 +71,17 @@ string Robot::ToTarget(vector<shared_ptr<Robot>>& robots){
     double distance = CalculateManhDistance(x, y, task.targetX, task.targetY);
     double interAngle = head - atan2(task.targetY - y, task.targetX - x);
     
+
     if(abs(interAngle) > LIMIT_ANGLE){
-        // step2: adjust the direction of the robot firstly
-        ret += ((interAngle > 0)? Rotate(MIN_ANGLE_SPEED): Rotate(MAX_ANGLE_SPEED));
-        // step3: go straight, just be ensure that the robot can't go outside
-        ret += Forward(MID_LINE_SPEED);
+        if(interAngle >= PI || interAngle <= -PI){
+            ret += ((interAngle > 0)? Rotate(MAX_ANGLE_SPEED): Rotate(MIN_ANGLE_SPEED));
+            ret += Forward(MID_LINE_SPEED / 2);
+        }{
+            ret += ((interAngle > 0)? Rotate(MIN_ANGLE_SPEED): Rotate(MAX_ANGLE_SPEED));
+            ret += Forward(MID_LINE_SPEED);
+        }
     }else{
-        ret += Rotate(-interAngle);
+        ret += Rotate(-0.1 * interAngle);
         ret += (distance < LIMIT_DIST? Forward(MID_LINE_SPEED): Forward(MAX_LINE_SPEED));
     }
     return ret;

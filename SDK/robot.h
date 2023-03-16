@@ -45,7 +45,7 @@ public:
     string Rotate(double _anglespeed){ return "rotate " + to_string(id) + " " + to_string(_anglespeed) + "\n"; };
     string Buy(){ return "buy " + to_string(id) + " \n"; };
     string Sell(){ return "sell " + to_string(id) + " \n"; }
-    string Destory(){ return "destory " + to_string(id) + " \n"; }
+    string Destory(){ ChangeStateTo(AVAILABLE); return "destory " + to_string(id) + " \n"; }
 
     inline void ChangeStateTo(RobotState _state);
 private:

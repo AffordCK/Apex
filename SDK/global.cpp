@@ -6,7 +6,7 @@ const double MAP_DIV1 = 0.5;
 const double MAP_DIV2 = 0.25;
 
 const char *logFileName = "log.txt";
-FILE* logFile = freopen(logFileName, "a+", stderr);
+FILE* logFile = freopen(logFileName, "w", stderr);
 
 const vector<Good> GoodsTable = {
     Good(EMPTY, STATION0, 0, 0), // fill the first place
@@ -21,13 +21,13 @@ const vector<Good> GoodsTable = {
 // goods type -> station type -> station id
 const vector<StationInfo> StationsTable = {
     StationInfo(EMPTY, 0, EMPTY),
-    StationInfo(EMPTY, 50, GOOD1),
-    StationInfo(EMPTY, 50, GOOD2),
-    StationInfo(EMPTY, 50, GOOD3),
-    StationInfo(GOOD1 | GOOD2, 500, GOOD4),
-    StationInfo(GOOD1 | GOOD3, 500, GOOD5),
-    StationInfo(GOOD2 | GOOD3, 500, GOOD6),
-    StationInfo(GOOD4 | GOOD5 | GOOD6, 1000, GOOD7),
+    StationInfo(EMPTY, 50, 1),
+    StationInfo(EMPTY, 50, 2),
+    StationInfo(EMPTY, 50, 3),
+    StationInfo(GOOD1 | GOOD2, 500, 4),
+    StationInfo(GOOD1 | GOOD3, 500, 5),
+    StationInfo(GOOD2 | GOOD3, 500, 6),
+    StationInfo(GOOD4 | GOOD5 | GOOD6, 1000, 7),
     StationInfo(GOOD7, 1, EMPTY),
     StationInfo(GOOD1 | GOOD2 | GOOD3 | GOOD4 | GOOD5 | GOOD6 | GOOD7, 1, EMPTY)
 };

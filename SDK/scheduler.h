@@ -31,20 +31,29 @@ public:
     void ReadMap();
     bool ReadFrame();
     void Work();
-    int FindTheTargetStation(int robotId, int goodType); // the robot is deliver
-    int FindTheTargetStation2(int robotId); // the robot is availabe
+    bool AssignTaskBasedOnProfit(int robotId);
+    bool FindAnotherTargetStation(int robotId, int goodType);
+    void ChangeTargetStation(int robotId);
 
     bool CompareTask(int robotId); // compare robot with taskTable
-    bool CheckRepeatTask(int stationId, int goodType); // check in taskTable
-    void AssignTask(int robotId, int stationId, int goodType, RobotState state);
+    bool CheckTaskTable(int goodType, int stationId);
+    void AssignTask(int robotId, int goodType, int midStationId, int targetStationId);
+    void ClearRobotTask(int robotId);
+    void UpdateRobotTask(int robotId);
     void SendCommand();
+
+    vector<int> GetStationsBasedOnGood(int goodType);
+
 private:
     ll frameId, coins;
     stringstream command;
-    vector<vector<int>> taskTable;          // robot's task table
     unordered_map<int, vector<int>> typeToStations;     // type to station's id
+    unordered_map<int, vector<int>> productToStations; // goodProduct to station
+    unordered_map<int, vector<int>> sourceToStations; // source to station
     vector<shared_ptr<Station>> stations;
     vector<shared_ptr<Robot>> robots;
+    vector<vector<int>> taskTable;          // robot's task table, including {goodType, midStationId, finalStationId}
+    vector<vector<double>> stationDistance; // the distance between the station
 };
 
 #endif

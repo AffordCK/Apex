@@ -9,6 +9,8 @@
 #ifndef __BASIC_H__
 #define __BASIC_H__
 
+#define ll long long
+
 using namespace std;
 
 /**
@@ -46,8 +48,8 @@ enum StationType{
  */
 struct Good{
     int source, producer;
-    long long cost, price, profit;
-    Good(int _source, int _producer, long long _cost, long long _price): source(_source), \
+    ll cost, price, profit;
+    Good(int _source, int _producer, ll _cost, ll _price): source(_source), \
         producer(_producer), cost(_cost), price(_price){
             profit = price - cost;
         }
@@ -64,7 +66,7 @@ enum StationState{
 
 struct Station{
     int id, type, sourceState, productState;
-    long long leftFrame;
+    ll leftFrame;
     double x, y;
 
     Station(int _id, int _type, double _x, double _y): id(_id), type(_type), \

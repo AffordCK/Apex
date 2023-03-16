@@ -23,8 +23,6 @@ using namespace std;
 extern "C"{
 #endif
 
-#define ll long long
-
 #if 0  // set one if you want to test you robot move
 #define TEST_ROBOT_MOVE
 #endif
