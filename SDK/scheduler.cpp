@@ -110,7 +110,6 @@ void Scheduler::Work(){
                         }
                     }
                 }
-                
             }
             
             // step2: check whether there target staion has a product
@@ -119,7 +118,7 @@ void Scheduler::Work(){
                 ClearRobotTask(robotIdx);
             }
 
-            // step2: assign the task to available
+            // step3: assign the task to available
             if(robots[robotIdx]->state == AVAILABLE){
                 if(AssignTaskBasedOnProfit(robotIdx)){
                     cerr << robotIdx << "has been assigned a job with goodType " << taskTable[robotIdx][0] \
