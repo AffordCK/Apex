@@ -5,6 +5,8 @@ const int MAP_COLS = 100;
 const double MAP_DIV1 = 0.5;
 const double MAP_DIV2 = 0.25;
 
+const int OnlyTakeInStation = 8;
+
 const char *logFileName = "log.txt";
 FILE* logFile = freopen(logFileName, "w", stderr);
 

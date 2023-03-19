@@ -50,10 +50,10 @@ public:
     string ToTarget(vector<shared_ptr<Robot>>& robots);
 
     string Forward(double _linespeed){ return "forward " + to_string(id) + " " + to_string(_linespeed) + "\n"; }
-    string Rotate(double _anglespeed){ return "rotate " + to_string(id) + " " + to_string(_anglespeed) + "\n"; };
-    string Buy(){ return "buy " + to_string(id) + " \n"; };
+    string Rotate(double _anglespeed){ return "rotate " + to_string(id) + " " + to_string(_anglespeed) + "\n"; }
+    string Buy(){ return "buy " + to_string(id) + " \n"; }
     string Sell(){ return "sell " + to_string(id) + " \n"; }
-    string Destory(){ ChangeStateTo(AVAILABLE); return "destory " + to_string(id) + " \n"; }
+    string Destroy(){ ChangeStateTo(AVAILABLE); return "destroy " + to_string(id) + " \n"; }
 
     inline void ChangeStateTo(RobotState _state);
 
@@ -66,8 +66,9 @@ public:
     vector<double> BestSpeed(const OperatingState& currentStatee, const vector<double>& dw);
     void TracePrediction(const OperatingState& currentState, const double& linespeed, const double& anglespeed, vector<OperatingState>& traceTmp);
     OperatingState MotionModel(const OperatingState& currentState, const double& linespeed, const double& anglespeed);
-    double GoalCost(const vector<OperatingState>& traceTmp);
+    double AngleCost(const vector<OperatingState>& traceTmp);
     double ObstacleCost(const vector<OperatingState>& traceTmp, vector<vector<double>>& obstacle);
+    double TransborderCost(const vector<OperatingState>& traceTmp);
 private:
     RobotState state;
     int id, goodType, stationId;
@@ -81,7 +82,7 @@ private:
     double lineAcceleration, angleAcceleration;
     vector<vector<double>> obstacle;
     //the speed of the next frame, speed[0] means linespeed, speed[1] means anglespeed
-    vector<double> speed;
+    vector<double> best_speed ;
     bool aaa = false;
 };
 

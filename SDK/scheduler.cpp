@@ -105,7 +105,7 @@ void Scheduler::Work(){
                 }else{ // find another target station
                     if(CheckIncludeBit2(stations[robots[robotIdx]->task.targetStationId]->sourceState, robots[robotIdx]->task.goodType)){
                         if(!FindAnotherTargetStation(robotIdx, robots[robotIdx]->goodType)){
-                            command << robots[robotIdx]->Destory();
+                            command << robots[robotIdx]->Destroy();
                             ClearRobotTask(robotIdx);
                         }
                     }
@@ -113,8 +113,12 @@ void Scheduler::Work(){
             }
             
             // step2: check whether there target staion has a product
-            if(robots[robotIdx]->state == PICK_UP && (!stations[robots[robotIdx]->task.targetStationId]->productState
-                    || CheckTaskTable(robots[robotIdx]->task.goodType, robots[robotIdx]->task.targetStationId))){
+            if(robots[robotIdx]->state == PICK_UP && (CheckTaskTable(robots[robotIdx]->task.goodType, robots[robotIdx]->task.targetStationId) || 
+                    (!stations[robots[robotIdx]->task.targetStationId]->productState && stations[robots[robotIdx]->task.targetStationId]->leftFrame == -1))){
+                
+                if(stations[robots[robotIdx]->task.targetStationId]->type == 7 && stations[robots[robotIdx]->task.targetStationId]->leftFrame == -1){
+                    cerr << "test" << endl;
+                }
                 ClearRobotTask(robotIdx);
             }
 
@@ -162,36 +166,42 @@ vector<int> Scheduler::GetStationsBasedOnGood(int goodType){
     }
 }
 
+// TODO: if the final product is not needed by other stations, then to deliver other goods
 
-static const double w1 = -0.1; // distance to pick up the good
-static const double w2 = -0.001; // frame still needed to produce
-static const double w3 = 0.001; // the profit that the good will bring
-static const double w4 = 1; // the good can be used as a source
-static const double w5 = -0.1; // distance to deliver the good
-static const double w6 = -1; // the num of source still need
-static const double w7 = 0.001; // the profit that the final product will bring
+static const double DistancePickUpWeight = -0.1; // distance to pick up the good
+static const double FrameToProduceWeight = -0.01; // frame still needed to produce
+static const double ProductProfitWeight = 0.001; // the profit that the good will bring
+static const double SourceFlagWeight = 1; // the good can be used as a source
+static const double DistanceDeliverWeight = -0.1; // distance to deliver the good
+static const double SourceNumWeight = -1; // the num of source still need
+static const double NextProductWeight = 0.001; // the profit that the final product will bring, only used in 1~7 stations
+static const double FinalProductProfit = 2.0;
 
 bool Scheduler::AssignTaskBasedOnProfit(int robotId){
     int midStationId = -1, targetStationId = -1;
     double maxProfit = 0.0;
     vector<double> profits(stations.size(), 0.0);
     for(int stationId = 0; stationId < (int)stations.size(); ++stationId){ // search for the 
+        if(stations[stationId]->type == 7 && stations[stationId]->productState){
+            cerr << "7 has product" << endl;
+        }
         int goodType = StationsTable[stations[stationId]->type].product;
         int goodBit = 1 << goodType;
         if(goodType == 0){ continue; } // don't pick up in stations 8 and 9
         // step1: check whether the station is assigned to some robot or doesn't have a product
-        if(!stations[stationId]->productState || CheckTaskTable(goodType, stationId)){
+        if((!stations[stationId]->productState && stations[stationId]->leftFrame == -1) || CheckTaskTable(goodType, stationId)){
             continue;
         }
         double profit = 0.0;
         // step2: calculate the distance between the robot and the mid station
-        profit += w1 * CalculateEucliDistance(robots[robotId]->x, robots[robotId]->y, stations[stationId]->x, stations[stationId]->y);
+        profit += DistancePickUpWeight * CalculateEucliDistance(robots[robotId]->x, robots[robotId]->y,
+            stations[stationId]->x, stations[stationId]->y);
         // step3: calculate the left frame of the product in stationId
-        profit += w2 * stations[stationId]->leftFrame;
+        profit += FrameToProduceWeight * (stations[stationId]->productState == 1? 0: stations[stationId]->leftFrame);
         // step4: calculate the profit that the product will bring
-        profit += w3 * GoodsTable[goodType].profit;
+        profit += ProductProfitWeight * GoodsTable[goodType].profit;
         // step5: calculate the whether the product can be used as a source
-        profit += w4 * (goodType < 4? 2: 1);
+        profit += SourceFlagWeight * (goodType < 4? 2: 1);
         int targetStationIdTemp = -1;
         double maxProfitTemp = 0.0;
         for(auto &target: sourceToStations[goodType]){
@@ -202,14 +212,19 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
             }
             int stationType = stations[target]->type;
             // step7: calculate the cost of the deliver distance
-            double profitTemp = w5 * stationDistance[stationId][target];
+            double profitTemp = DistanceDeliverWeight * stationDistance[stationId][target];
             // step8: calculate the num of source still need
             if(stationType <= (int)GoodsTable.size()){
-                profitTemp += w6 * (__builtin_popcount(StationsTable[stationType].source) - \
+                profitTemp += SourceNumWeight * (__builtin_popcount(StationsTable[stationType].source) - \
                                                          __builtin_popcount(stations[target]->sourceState));
             }
             // step9: calculate the profit that the final product will bring
-            profitTemp += w7 * GoodsTable[StationsTable[stationType].product].profit;
+            if(stations[target]->type < OnlyTakeInStation){
+                profitTemp += NextProductWeight * GoodsTable[StationsTable[stationType].product].profit;
+            }else{
+                profitTemp += FinalProductProfit;
+            }
+            
             if(maxProfitTemp < profitTemp){
                 maxProfitTemp = profitTemp;
                 targetStationIdTemp = target;
@@ -249,15 +264,15 @@ bool Scheduler::FindAnotherTargetStation(int robotId, int goodType){
             }
             int stationType = stations[target]->type;
             // step7: calculate the cost of the deliver distance
-            double profitTemp = w5 * CalculateEucliDistance(robots[robotId]->x, robots[robotId]->y,
+            double profitTemp = DistanceDeliverWeight * CalculateEucliDistance(robots[robotId]->x, robots[robotId]->y,
                 stations[target]->x, stations[target]->y);
             // step8: calculate the num of source still need
             if(stationType <= (int)GoodsTable.size()){
-                profitTemp += w6 * (__builtin_popcount(StationsTable[stationType].source) - \
+                profitTemp += SourceNumWeight * (__builtin_popcount(StationsTable[stationType].source) - \
                                                          __builtin_popcount(stations[target]->sourceState));
             }
             // step9: calculate the profit that the final product will bring
-            profitTemp += w7 * GoodsTable[StationsTable[stationType].product].profit;
+            profitTemp += NextProductWeight * GoodsTable[StationsTable[stationType].product].profit;
             if(maxProfit < profitTemp){
                 maxProfit = profitTemp;
                 targetStationId = target;

@@ -21,12 +21,17 @@ static const double MAX_ANGLE_FORCE = 50;
 // Monkey: for DWA
 static const double LINE_SPEED_RESOLUTION = 0.01;
 static const double ANGLE_SPEED_RESOLUTION = 0.01;
-static const double PREDICT_CYCLE_TIME = 0.002;
+static const double PREDICT_CYCLE_TIME = 0.01;
 static const double PREDICT_TIME = 0.02;
-static const double GOAL_COST_GAIN = 0.2;
+
+static const double ANGLE_COST_GAIN = 100.0;
 static const double SPEED_COST_GAIN = 1.0;
-static const double OBSTACLE_COST_GAIN = 1.0;
-static const double SAFE_RADIUS = 0.7;
+static const double OBSTACLE_COST_GAIN = 0.1;
+static const double DISTANCE_COST_GAIN = 10.0;
+static const double TRANSBORDER_COST_GAIN = 0.5;
+
+static const double SAFE_RADIUS_BETWEEN_ROBOTS = 1.2;//0.53*2+0.02*6=1.18<=1.2
+static const double SAFE_RADIUS_AWAY_BORDER = 1;
 
 #define MAX_LINE_ACCELERATION(r) MAX_LINE_FORCE / (DENSITY * PI * r * r)//Monkey
 #define MAX_ANGLE_ACCELERATION(r) MAX_ANGLE_FORCE / (0.5 * DENSITY * PI * r * r * r * r)//Monkey
@@ -68,6 +73,8 @@ void Robot::SetTarget(double _targetX, double _targetY, int _stationId, int _goo
  * @brief calcuate the control signal of the robot
  */
 string Robot::ToTarget(vector<shared_ptr<Robot>>& robots){
+    //if (id != 0) return "";
+
     // step 1: check whether reach the target
     /*Monkey:if reach the target station, we must sell the goods out.
     * BUT, We have to realize the productState of the target station.
@@ -79,11 +86,11 @@ string Robot::ToTarget(vector<shared_ptr<Robot>>& robots){
             state = DELIVER_GOODS;
             return Buy();
         }
-        state = AVAILABLE;      // finish the job
-        return Sell();//Monkey: We can buy right now if we can!!!
+        state = AVAILABLE;
+        return Sell();
     }
 
-    string ret = "";
+    string res = "";
     // step2: Using the DWA to plan the linespeed and anglespeed of the next frame.
     //count the limit of acceleration
     lineAcceleration = MAX_LINE_ACCELERATION(radius);
@@ -92,10 +99,10 @@ string Robot::ToTarget(vector<shared_ptr<Robot>>& robots){
     obstacle = ObstacleRecord(robots);
     //record the current operating state
     CurrentStateRecord();
-    vector<double> best_speed = DWA(currentState);
-    if (best_speed[0] != currentState.current_linespeed){ ret += Forward(best_speed[0]); }
-    if (best_speed[1] != currentState.current_anglespeed){ ret += Rotate(best_speed[1]); }
-    return ret;
+    best_speed = DWA(currentState);
+    if (best_speed[0] != currentState.current_linespeed){ res += Forward(best_speed[0]); }
+    if (best_speed[1] != currentState.current_anglespeed){ res += Rotate(best_speed[1]); }
+    return res;
 }
 
 void Robot::ChangeStateTo(RobotState _state){
@@ -168,10 +175,11 @@ vector<double> Robot::BestSpeed(const OperatingState& currentState, const vector
     vector<OperatingState> traceTmp;//the trace of prediction
     double min_cost = 10000;
     double final_cost;
-    double goal_cost;
+    double angle_cost;
     double speed_cost = 0;
     double obstacle_cost = 0;
     double distance_cost = 0;
+    double transborder_cost = 0;
     for (double i = dw[0]; i < dw[1]; i += LINE_SPEED_RESOLUTION)
     {
         for (double j = dw[2]; j < dw[3]; j += ANGLE_SPEED_RESOLUTION)
@@ -179,12 +187,13 @@ vector<double> Robot::BestSpeed(const OperatingState& currentState, const vector
             //predict the trace
             traceTmp.clear();
             TracePrediction(currentState, i, j, traceTmp);
-            //计算代价
-            goal_cost = GOAL_COST_GAIN * GoalCost(traceTmp);
+            //count the cost
+            angle_cost = ANGLE_COST_GAIN * AngleCost(traceTmp);
             speed_cost = SPEED_COST_GAIN * (MAX_LINE_SPEED - traceTmp.back().current_linespeed);
             obstacle_cost = OBSTACLE_COST_GAIN * ObstacleCost(traceTmp, obstacle);
-            distance_cost = 0.1 * sqrt(pow(task.targetX - traceTmp.back().current_x, 2) + pow(task.targetY - traceTmp.back().current_y, 2));
-            final_cost = goal_cost + speed_cost + obstacle_cost + distance_cost;
+            distance_cost = DISTANCE_COST_GAIN * sqrt(pow(task.targetX - traceTmp.back().current_x, 2) + pow(task.targetY - traceTmp.back().current_y, 2));
+            transborder_cost = TRANSBORDER_COST_GAIN * TransborderCost(traceTmp);
+            final_cost = angle_cost + speed_cost + obstacle_cost + distance_cost;
 
             if (final_cost < min_cost)
             {
@@ -210,6 +219,7 @@ void Robot::TracePrediction(const OperatingState& currentState, const double& li
     while (time < PREDICT_TIME)
     {
         nextState = MotionModel(nextState, linespeed, anglespeed);
+        //the code of check state
         if (aaa)
             cout << "nextState:(" << nextState.current_x << ", " << nextState.current_y << ", " << nextState.current_head << ")" << nextState.current_linespeed << "  " << nextState.current_anglespeed << endl;
         traceTmp.push_back(nextState);
@@ -230,7 +240,7 @@ OperatingState Robot::MotionModel(const OperatingState& currentState, const doub
 }
 
 // count the goal cost
-double Robot::GoalCost(const vector<OperatingState>& traceTmp)
+double Robot::AngleCost(const vector<OperatingState>& traceTmp)
 {
     double error_head = atan2(task.targetY - traceTmp.back().current_y, task.targetX - traceTmp.back().current_x);
     double goal_cost = error_head - traceTmp.back().current_head;
@@ -246,14 +256,25 @@ double Robot::GoalCost(const vector<OperatingState>& traceTmp)
 //count the obstacle cost
 double Robot::ObstacleCost(const vector<OperatingState>& traceTmp, vector<vector<double>>& obstacle)
 {
-    //float obstacle_cost;
     double distance;
     for (int i = 0; i < obstacle.size(); i++) {
         for (int j = 0; j < traceTmp.size(); j++) {
             distance = sqrt(pow(obstacle[i][0] - traceTmp[j].current_x, 2) + pow(obstacle[i][1] - traceTmp[j].current_y, 2));
-            if (distance <= SAFE_RADIUS)
-                return 10000.0;
+            if (distance <= SAFE_RADIUS_BETWEEN_ROBOTS)
+                return 10000.0;//allow some collision between the robots
         }
+    }
+    return 0;
+}
+
+//count the transborder cost
+double Robot::TransborderCost(const vector<OperatingState>& traceTmp)
+{
+    //DON NOT ALLOW THE TRANSBORDER
+    for (int i = 0; i < traceTmp.size(); i++) {
+        if (traceTmp[i].current_x < SAFE_RADIUS_AWAY_BORDER || traceTmp[i].current_x > 50-SAFE_RADIUS_AWAY_BORDER || 
+        traceTmp[i].current_y < SAFE_RADIUS_AWAY_BORDER || traceTmp[i].current_y > 50-SAFE_RADIUS_AWAY_BORDER)
+        return 10000.0;//DON NOT ALLOW THE TRANSBORDER
     }
     return 0;
 }

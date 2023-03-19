@@ -32,6 +32,8 @@ extern const int MAP_COLS;
 extern const double MAP_DIV1;
 extern const double MAP_DIV2;
 
+extern const int OnlyTakeInStation;
+
 extern const char *logFileName;
 extern FILE* logFile;
 extern const vector<Good> GoodsTable;
