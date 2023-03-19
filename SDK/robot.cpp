@@ -26,8 +26,8 @@ static const double PREDICT_TIME = 0.02;
 
 static const double ANGLE_COST_GAIN = 100.0;
 static const double SPEED_COST_GAIN = 1.0;
-static const double OBSTACLE_COST_GAIN = 0.1;
-static const double DISTANCE_COST_GAIN = 10.0;
+static const double OBSTACLE_COST_GAIN = 0.01;
+static const double DISTANCE_COST_GAIN = 1.0;
 static const double TRANSBORDER_COST_GAIN = 0.5;
 
 static const double SAFE_RADIUS_BETWEEN_ROBOTS = 1.2;//0.53*2+0.02*6=1.18<=1.2
@@ -81,13 +81,14 @@ string Robot::ToTarget(vector<shared_ptr<Robot>>& robots){
     * If there is product for selling, we buy?
     * No matter we buy or not, we have change the state of robot,and change its radius!!!!
     */
-    if (stationId == task.targetStationId) { // reach the target station
-        if (state == PICK_UP) {
-            state = DELIVER_GOODS;
+   if(task.targetStationId == -1){ return ""; }
+    if (stationId != -1 && stationId == task.targetStationId) { // reach the target station
+        if(state == PICK_UP){
             return Buy();
+        }else if(state == DELIVER_GOODS){
+            state = AVAILABLE;
+            return Sell();
         }
-        state = AVAILABLE;
-        return Sell();
     }
 
     string res = "";

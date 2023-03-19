@@ -23,9 +23,7 @@ using namespace std;
 extern "C"{
 #endif
 
-#if 0  // set one if you want to test you robot move
-#define TEST_ROBOT_MOVE
-#endif
+#define ENABLE_TRY_BLOCK 0 // set one if you want to test the code in huawei cloud online
 
 extern const int MAP_ROWS;
 extern const int MAP_COLS;

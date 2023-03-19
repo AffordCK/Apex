@@ -33,16 +33,14 @@ public:
     void Work();
     bool AssignTaskBasedOnProfit(int robotId);
     bool FindAnotherTargetStation(int robotId, int goodType);
-    void ChangeTargetStation(int robotId);
 
-    bool CompareTask(int robotId); // compare robot with taskTable
-    bool CheckTaskTable(int goodType, int stationId);
+    bool CheckTaskTable(int robotId, int goodType, int stationId);
+    bool CheckTaskAvailable(int robotId); // vertify the task of robot robotiId
     void AssignTask(int robotId, int goodType, int midStationId, int targetStationId);
     void ClearRobotTask(int robotId);
+    void UpdateStationStateTemp(int goodType, int stationId);
     void UpdateRobotTask(int robotId);
     void SendCommand();
-
-    vector<int> GetStationsBasedOnGood(int goodType);
 
 private:
     ll frameId, coins;
