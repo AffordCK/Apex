@@ -26,7 +26,7 @@ static const double PREDICT_TIME = 0.02;
 
 static const double ANGLE_COST_GAIN = 250.0;
 static const double SPEED_COST_GAIN = 2.0;
-static const double OBSTACLE_COST_GAIN = 0.4;
+static const double OBSTACLE_COST_GAIN = 0.1;
 static const double DISTANCE_COST_GAIN = 100.0;
 static const double TRANSBORDER_COST_GAIN = 0.2;
 
@@ -221,8 +221,8 @@ void Robot::TracePrediction(const OperatingState& currentState, const double& li
     {
         nextState = MotionModel(nextState, linespeed, anglespeed);
         //the code of check state
-        if (aaa)
-            cout << "nextState:(" << nextState.current_x << ", " << nextState.current_y << ", " << nextState.current_head << ")" << nextState.current_linespeed << "  " << nextState.current_anglespeed << endl;
+        // if (aaa)
+        //     cout << "nextState:(" << nextState.current_x << ", " << nextState.current_y << ", " << nextState.current_head << ")" << nextState.current_linespeed << "  " << nextState.current_anglespeed << endl;
         traceTmp.push_back(nextState);
         time += PREDICT_CYCLE_TIME;
     }

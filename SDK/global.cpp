@@ -8,9 +8,8 @@ const double MAP_DIV1 = 0.5;
 const double MAP_DIV2 = 0.25;
 
 const int TaskDurationFrame = 50 * 15;
-const int WaitFrame = 50 * 3;
+const int WaitFrame = 50 * 1;
 const int OnlyTakeInStation = 8;
-const int HighProfitProduct = 7;
 
 const char *logFileName = "log.txt";
 FILE* logFile = freopen(logFileName, "w", stderr);
