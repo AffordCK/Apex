@@ -1,3 +1,0 @@
-/home/monkey_g/work/Monkey/SDK/build/CMakeFiles/rebuild_cache.dir
-/home/monkey_g/work/Monkey/SDK/build/CMakeFiles/edit_cache.dir
-/home/monkey_g/work/Monkey/SDK/build/CMakeFiles/main.dir
