@@ -32,8 +32,9 @@ extern const int MAP_COLS;
 extern const double MAP_DIV1;
 extern const double MAP_DIV2;
 
+extern const int TaskDurationFrame;
+extern const int WaitFrame;
 extern const int OnlyTakeInStation;
-
 extern const int HighProfitProduct;
 
 extern const char *logFileName;
