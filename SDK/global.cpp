@@ -1,11 +1,15 @@
 #include "global.h"
 
+const int LEFT_FRAME = (3 * 60 - 3) * 50;
+
 const int MAP_ROWS = 100;
 const int MAP_COLS = 100;
 const double MAP_DIV1 = 0.5;
 const double MAP_DIV2 = 0.25;
 
 const int OnlyTakeInStation = 8;
+
+const int HighProfitProduct = 7;
 
 const char *logFileName = "log.txt";
 FILE* logFile = freopen(logFileName, "w", stderr);
