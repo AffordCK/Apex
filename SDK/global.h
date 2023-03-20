@@ -25,12 +25,16 @@ extern "C"{
 
 #define ENABLE_TRY_BLOCK 0 // set one if you want to test the code in huawei cloud online
 
+extern const int LEFT_FRAME;
+
 extern const int MAP_ROWS;
 extern const int MAP_COLS;
 extern const double MAP_DIV1;
 extern const double MAP_DIV2;
 
 extern const int OnlyTakeInStation;
+
+extern const int HighProfitProduct;
 
 extern const char *logFileName;
 extern FILE* logFile;
