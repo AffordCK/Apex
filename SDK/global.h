@@ -35,7 +35,6 @@ extern const double MAP_DIV2;
 extern const int TaskDurationFrame;
 extern const int WaitFrame;
 extern const int OnlyTakeInStation;
-extern const int HighProfitProduct;
 
 extern const char *logFileName;
 extern FILE* logFile;

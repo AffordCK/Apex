@@ -43,6 +43,7 @@ public:
     void ClearRobotTask(int robotId);
     void UpdateStationStateTemp(int goodType, int stationId);
     void UpdateRobotTask(int robotId);
+    void IncrementProductCount(int stationId);
     void ClearProductCount();
     void SendCommand();
 

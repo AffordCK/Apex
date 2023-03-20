@@ -1,5 +1,7 @@
 #include "scheduler.h"
 
+static int HighProfitProduct = 0;
+
 /**
  * @brief Construct a new Scheduler:: Scheduler object
  */
@@ -32,6 +34,7 @@ void Scheduler::ReadMap(){
                         sourceToStations[goodType].emplace_back(stationId);
                     }
                 }
+                HighProfitProduct = StationsTable[type].product > HighProfitProduct? StationsTable[type].product: HighProfitProduct;
                 ++stationId;
             }
         }
@@ -62,9 +65,11 @@ bool Scheduler::ReadFrame(){
         istringstream is(line);
         is >> stations[i]->type >> stations[i]->x >> stations[i]->y >> stations[i]->leftFrame \
             >> stations[i]->sourceState >> stations[i]->productState;
-        if(stations[i]->productState == 1 || stations[i]->leftFrame != -1){
-            productCount[StationsTable[stations[i]->type].product]++;
-        }
+        IncrementProductCount(i);
+        // if(stations[i]->productState == 1 || stations[i]->leftFrame != -1){
+        //     productCount[StationsTable[stations[i]->type].product]++;
+        // }
+
         // cerr << stations[i]->type << ' ' << stations[i]->x << ' ' << stations[i]->y << ' ' << stations[i]->leftFrame \
         //     << ' ' << stations[i]->sourceState << ' ' << stations[i]->productState << endl;
     }
@@ -169,18 +174,17 @@ static vector<int> GetTheStationTypeBaseOnGood(int goodType){
 // TODO: if the final product is not needed by other stations, then to deliver other goods
 
 static const double MinCost = -100000.0;
-static const double DistancePickUpWeight = -5; // distance to pick up the good
+static const double DistancePickUpWeight = -10; // distance to pick up the good
 static const double FrameToProduceWeight = -0.01; // frame still needed to produce
-static const double ProductProfitWeight = 0.01; // the profit that the good will bring
+static const double ProductProfitWeight = 0.1; // the profit that the good will bring
 static const double HighProfitProductWeight = 1;
 static const double SourceFlagWeight = 10; // the good can be used as a source
-static const double DistanceDeliverWeight = -5; // distance to deliver the good
-static const double SourceNumWeight = -10; // the num of source still need
-static const double NextProductWeight = 0.01; // the profit that the final product will bring, only used in 1~7 stations
+static const double DistanceDeliverWeight = -10; // distance to deliver the good
+static const double SourceNumWeight = -100; // the num of source still need
+static const double NextProductWeight = 0.1; // the profit that the final product will bring, only used in 1~7 stations
 static const double NNextProductWeight = 0.1;
 static const double FinalProductProfit = 1.0;
-static const double ProductCountWeight = -10.0;
-static const double ThisStationWeight = 10.0; // if the robot at the 
+static const double ProductCountWeight = -100.0;
 
 bool Scheduler::AssignTaskBasedOnProfit(int robotId){
     int midStationId = -1, targetStationId = -1;
@@ -366,6 +370,9 @@ void Scheduler::AssignTask(int robotId, int goodType, int midStationId, int targ
     taskTable[robotId][3] = frameId;
 }
 
+/**
+ * @brief clear the robot task when finish the job or cancel the task
+ */
 void Scheduler::ClearRobotTask(int robotId){
     robots[robotId]->state = AVAILABLE;
     robots[robotId]->task.targetStationId = -1;
@@ -395,6 +402,23 @@ void Scheduler::UpdateRobotTask(int robotId){
     }else if(robots[robotId]->state == PICK_UP){
         robots[robotId]->SetTarget(stations[taskTable[robotId][2]]->x, stations[taskTable[robotId][2]]->y, \
            taskTable[robotId][2], taskTable[robotId][0], DELIVER_GOODS);
+    }
+}
+
+/**
+ * @brief IncrementProductCount base on the product
+ */
+void Scheduler::IncrementProductCount(int stationId){
+    if(stations[stationId]->productState == 1 || stations[stationId]->leftFrame != -1){
+        productCount[StationsTable[stations[stationId]->type].product]++;
+    }
+    int source = stations[stationId]->sourceState, goodType = 1;
+    while(source != 0 && goodType <= (int)GoodsTable.size()){
+        source = source >> 1;
+        if(source & 1){
+            productCount[goodType]++;
+        }
+        ++goodType;
     }
 }
 
