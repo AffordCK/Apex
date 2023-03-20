@@ -1,3 +1,0 @@
-/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles/rebuild_cache.dir
-/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles/main.dir
-/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles/edit_cache.dir
