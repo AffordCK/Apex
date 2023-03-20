@@ -1,4 +1,4 @@
-# Install script for directory: /home/koker/huawei/LinuxRelease/SDK
+# Install script for directory: /home/monkey_g/work/Monkey/SDK
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/koker/huawei/LinuxRelease/SDK/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/monkey_g/work/Monkey/SDK/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -67,6 +67,7 @@ public:
     void TracePrediction(const OperatingState& currentState, const double& linespeed, const double& anglespeed, vector<OperatingState>& traceTmp);
     OperatingState MotionModel(const OperatingState& currentState, const double& linespeed, const double& anglespeed);
     double AngleCost(const vector<OperatingState>& traceTmp);
+    double DistanceCost(const vector<OperatingState>& traceTmp);
     double ObstacleCost(const vector<OperatingState>& traceTmp, vector<vector<double>>& obstacle);
     double TransborderCost(const vector<OperatingState>& traceTmp);
 private:

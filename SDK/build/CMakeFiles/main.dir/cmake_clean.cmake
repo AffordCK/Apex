@@ -3,8 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/main.dir/main.cpp.o"
   "CMakeFiles/main.dir/robot.cpp.o"
   "CMakeFiles/main.dir/scheduler.cpp.o"
-  "main.pdb"
   "main"
+  "main.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

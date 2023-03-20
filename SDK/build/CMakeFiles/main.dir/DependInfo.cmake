@@ -4,10 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/koker/huawei/LinuxRelease/SDK/global.cpp" "/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles/main.dir/global.cpp.o"
-  "/home/koker/huawei/LinuxRelease/SDK/main.cpp" "/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles/main.dir/main.cpp.o"
-  "/home/koker/huawei/LinuxRelease/SDK/robot.cpp" "/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles/main.dir/robot.cpp.o"
-  "/home/koker/huawei/LinuxRelease/SDK/scheduler.cpp" "/home/koker/huawei/LinuxRelease/SDK/build/CMakeFiles/main.dir/scheduler.cpp.o"
+  "/home/monkey_g/work/Monkey/SDK/global.cpp" "/home/monkey_g/work/Monkey/SDK/build/CMakeFiles/main.dir/global.cpp.o"
+  "/home/monkey_g/work/Monkey/SDK/main.cpp" "/home/monkey_g/work/Monkey/SDK/build/CMakeFiles/main.dir/main.cpp.o"
+  "/home/monkey_g/work/Monkey/SDK/robot.cpp" "/home/monkey_g/work/Monkey/SDK/build/CMakeFiles/main.dir/robot.cpp.o"
+  "/home/monkey_g/work/Monkey/SDK/scheduler.cpp" "/home/monkey_g/work/Monkey/SDK/build/CMakeFiles/main.dir/scheduler.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
