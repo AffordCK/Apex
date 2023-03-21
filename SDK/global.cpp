@@ -11,8 +11,8 @@ const int TaskDurationFrame = 50 * 15;
 const int WaitFrame = 50 * 1;
 const int OnlyTakeInStation = 8;
 
-const char *logFileName = "log.txt";
-FILE* logFile = freopen(logFileName, "w", stderr);
+// const char *logFileName = "log.txt";
+// FILE* logFile = freopen(logFileName, "w", stderr);
 
 const vector<Good> GoodsTable = {
     Good(EMPTY, STATION0, 0, 0), // fill the first place
