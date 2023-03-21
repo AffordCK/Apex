@@ -57,13 +57,7 @@ public:
 
     void ChangeStateTo(RobotState _state);
 
-<<<<<<< HEAD
     vector<OperatingState> ObstacleRecord(vector<shared_ptr<Robot>>& robots);
-=======
-
-    // Monkey for DWA
-    vector<vector<double>> ObstacleRecord(vector<shared_ptr<Robot>>& robots);
->>>>>>> ca8b299def5f12b7ea19c04813a8cbb6e5096890
     void CurrentStateRecord();
     vector<double> DWA(const OperatingState& currentState);
     vector<double> DynamicWindow(const OperatingState& currentStatee);
