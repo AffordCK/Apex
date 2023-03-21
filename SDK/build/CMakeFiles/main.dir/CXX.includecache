@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/monkey_g/work/newest (old_DWA_edition)/Apex/SDK/basic.h
+
+/home/monkey_g/work/newest (old_DWA_edition)/Apex/SDK/global.h
+stdio.h
+-
+iostream
+-
+vector
+-
+cmath
+-
+basic.h
+/home/monkey_g/work/newest (old_DWA_edition)/Apex/SDK/basic.h
+
+/home/monkey_g/work/newest (old_DWA_edition)/Apex/SDK/robot.cpp
+robot.h
+/home/monkey_g/work/newest (old_DWA_edition)/Apex/SDK/robot.h
+
+/home/monkey_g/work/newest (old_DWA_edition)/Apex/SDK/robot.h
+string
+-
+cmath
+-
+vector
+-
+iostream
+-
+memory
+-
+global.h
+/home/monkey_g/work/newest (old_DWA_edition)/Apex/SDK/global.h
+
