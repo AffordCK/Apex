@@ -117,7 +117,8 @@ void Robot::ChangeStateTo(RobotState _state){
             radius = DELIVER_RADIUS;
             break;
         default:
-            cerr << id << " has been set error state " << state << endl;
+            // cerr << id << " has been set error state " << state << endl;
+            break;
     }
 }
 

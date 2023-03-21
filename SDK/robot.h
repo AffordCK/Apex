@@ -55,12 +55,12 @@ public:
     string Sell(){ return "sell " + to_string(id) + " \n"; }
     string Destroy(){ ChangeStateTo(AVAILABLE); return "destroy " + to_string(id) + " \n"; }
 
-    inline void ChangeStateTo(RobotState _state);
+    void ChangeStateTo(RobotState _state);
 
 
     // Monkey for DWA
-    inline vector<vector<double>> ObstacleRecord(vector<shared_ptr<Robot>>& robots);
-    inline void CurrentStateRecord();
+    vector<vector<double>> ObstacleRecord(vector<shared_ptr<Robot>>& robots);
+    void CurrentStateRecord();
     vector<double> DWA(const OperatingState& currentState);
     vector<double> DynamicWindow(const OperatingState& currentStatee);
     vector<double> BestSpeed(const OperatingState& currentStatee, const vector<double>& dw);

@@ -35,16 +35,23 @@ public:
     bool AssignTaskBasedOnProfit(int robotId);
     void BuyAfterSell(int robotId);
     bool FindAnotherTargetStation(int robotId, int goodType, int stationIdMask = -1);
+    void ChangeTaskDuringPickUp(int robotId);
 
     bool CheckTaskTable(int robotId, int goodType, int stationId, RobotState sate);
     bool CheckTaskAvailable(int robotId); // vertify the task of robot robotiId
     bool CheckTaskReachable(int robotId); // if the robotId can't reach the target, just change to other station 
+    
     void AssignTask(int robotId, int goodType, int midStationId, int targetStationId);
     void ClearRobotTask(int robotId);
-    void UpdateStationStateTemp(int goodType, int stationId);
     void UpdateRobotTask(int robotId);
+    
+    void UpdateStationStateTemp(int goodType, int stationId);
     void IncrementProductCount(int stationId);
     void ClearProductCount();
+    
+    double EucliDistance(int Idx1, int Idx2, bool flag);
+    bool CloseToTarget(int robotIdx);
+
     void SendCommand();
 
 private:
