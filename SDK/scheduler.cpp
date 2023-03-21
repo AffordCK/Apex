@@ -150,7 +150,7 @@ assign:
 #if ENABLE_TRY_BLOCK
             }
             catch(...){
-                cerr << "SomeThing error!";
+                ClearRobotTask(robotIdx);
             }
 #endif
         }
