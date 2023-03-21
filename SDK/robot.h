@@ -27,12 +27,12 @@ struct RobotTask{
         targetStationId(_targetStationId), goodType(_goodType), targetX(_targetX), targetY(_targetY){}
 };
 
-// Monkey: for DWA
 struct OperatingState {
-    double current_x, current_y, current_head, current_linespeed, current_anglespeed;
-    OperatingState(double _current_x = 0, double _current_y = 0, \
-        double _current_head = 0, double _current_linespeed = 0, double _current_anglespeed = 0) : \
-        current_x(_current_x), current_y(_current_y), current_head(_current_head), current_linespeed(_current_linespeed), current_anglespeed(_current_anglespeed) {}
+    double current_x, current_y, current_head, current_linespeed, current_anglespeed, current_good;
+    OperatingState(double _current_x = 0, double _current_y = 0, double _current_head = 0, \
+        double _current_linespeed = 0, double _current_anglespeed = 0, double _current_good = 0) : \
+        current_x(_current_x), current_y(_current_y), current_head(_current_head), \
+        current_linespeed(_current_linespeed), current_anglespeed(_current_anglespeed), current_good(_current_good) {}
 };
 
 enum RobotState{
@@ -57,34 +57,37 @@ public:
 
     void ChangeStateTo(RobotState _state);
 
+<<<<<<< HEAD
+    vector<OperatingState> ObstacleRecord(vector<shared_ptr<Robot>>& robots);
+=======
 
     // Monkey for DWA
     vector<vector<double>> ObstacleRecord(vector<shared_ptr<Robot>>& robots);
+>>>>>>> ca8b299def5f12b7ea19c04813a8cbb6e5096890
     void CurrentStateRecord();
     vector<double> DWA(const OperatingState& currentState);
     vector<double> DynamicWindow(const OperatingState& currentStatee);
-    vector<double> BestSpeed(const OperatingState& currentStatee, const vector<double>& dw);
+    vector<double> BestSpeed(const OperatingState& currentStatee, const vector<double>& dw, vector<OperatingState>& obstacle);
     void TracePrediction(const OperatingState& currentState, const double& linespeed, const double& anglespeed, vector<OperatingState>& traceTmp);
     OperatingState MotionModel(const OperatingState& currentState, const double& linespeed, const double& anglespeed);
     double AngleCost(const vector<OperatingState>& traceTmp);
+    double SpeedCost(const vector<OperatingState>& traceTmp);
     double DistanceCost(const vector<OperatingState>& traceTmp);
-    double ObstacleCost(const vector<OperatingState>& traceTmp, vector<vector<double>>& obstacle);
+    double ObstacleCost(const vector<OperatingState>& traceTmp, vector<OperatingState>& obstacle);
     double TransborderCost(const vector<OperatingState>& traceTmp);
+    
 private:
     RobotState state;
     int id, goodType, stationId;
     struct RobotTask task;
-    struct OperatingState currentState;//forDWA
-    double time, collision; 
+    struct OperatingState currentState;
+    double time, collision;
     double radius, mass;
     double lineSpeedX, lineSpeedY, angleSpeed, head, x, y;
-
-    //for DWA
     double lineAcceleration, angleAcceleration;
-    vector<vector<double>> obstacle;
+    vector<OperatingState> obstacle;
     //the speed of the next frame, speed[0] means linespeed, speed[1] means anglespeed
-    vector<double> best_speed ;
-    bool aaa = false;
+    vector<double> best_speed;
 };
 
 #endif

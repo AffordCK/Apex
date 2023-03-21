@@ -6,7 +6,6 @@ static const double MAX_LINE_SPEED = 6;
 static const double MIN_ANGLE_SPEED = -PI;
 static const double MAX_ANGLE_SPEED = PI;
 static const double LIMIT_TARGET = 0.4;
-// static const double LIMIT_ANGLE = 0.3;
 static const double FRAME_PER_SECOND = 50;
 static const double MIN_SECOND = 0.02;
 
@@ -18,23 +17,22 @@ static const double DENSITY = 20;
 static const double MAX_LINE_FORCE = 250;
 static const double MAX_ANGLE_FORCE = 50;
 
-// Monkey: for DWA
 static const double LINE_SPEED_RESOLUTION = 0.01;
 static const double ANGLE_SPEED_RESOLUTION = 0.01;
-static const double PREDICT_CYCLE_TIME = 0.01;
-static const double PREDICT_TIME = 0.02;
+static const double PREDICT_CYCLE_TIME = 0.02;
+static const double PREDICT_TIME = PREDICT_CYCLE_TIME * 2;
 
-static const double ANGLE_COST_GAIN = 250.0;
-static const double SPEED_COST_GAIN = 2.0;
+static const double ANGLE_COST_GAIN = 250;
+static const double SPEED_COST_GAIN = 2;
+static const double DISTANCE_COST_GAIN = 100;
 static const double OBSTACLE_COST_GAIN = 0.1;
-static const double DISTANCE_COST_GAIN = 100.0;
 static const double TRANSBORDER_COST_GAIN = 0.2;
 
-static const double SAFE_RADIUS_BETWEEN_ROBOTS = 2.3;//0.53*2+0.5*6*6/14.165=2.3
-static const double SAFE_RADIUS_AWAY_BORDER = 1.2;//0.53+0.5*6*6/14.165*0.5=1.2
+static const double SAFE_RADIUS_BETWEEN_ROBOTS = 3;//0.53*2+0.5*6*6/14.165=2.3
+static const double SAFE_RADIUS_AWAY_BORDER = 1.5;//0.53+0.5*6*6/14.165*0.5=1.2
 
-#define MAX_LINE_ACCELERATION(r) MAX_LINE_FORCE / (DENSITY * PI * r * r)//Monkey
-#define MAX_ANGLE_ACCELERATION(r) MAX_ANGLE_FORCE / (0.5 * DENSITY * PI * r * r * r * r)//Monkey
+#define MAX_LINE_ACCELERATION(r) MAX_LINE_FORCE / (DENSITY * PI * r * r)
+#define MAX_ANGLE_ACCELERATION(r) MAX_ANGLE_FORCE / (0.5 * DENSITY * PI * r * r * r * r)
 
 /**
  * @brief Construct a new Robot:: Robot object
@@ -44,7 +42,7 @@ Robot::Robot(int _id): id(_id){
     goodType = EMPTY;
     stationId = 0;
     task = RobotTask();
-    currentState = OperatingState(); // Monkey
+    currentState = OperatingState();
     time = 0.0;
     collision = 0.0;
     radius = NORMAL_RADIUS;
@@ -54,8 +52,8 @@ Robot::Robot(int _id): id(_id){
     head = 0.0;
     x = 0.0;
     y = 0.0;
-    lineAcceleration = 0.0; // Monkey
-    angleAcceleration = 0.0; // Monkey
+    lineAcceleration = 0.0;
+    angleAcceleration = 0.0;
 }
 
 /**
@@ -73,15 +71,10 @@ void Robot::SetTarget(double _targetX, double _targetY, int _stationId, int _goo
  * @brief calcuate the control signal of the robot
  */
 string Robot::ToTarget(vector<shared_ptr<Robot>>& robots){
-    //if (id != 0) return "";
+    //if (id != 0) return "";//the code to check the single robot
 
     // step 1: check whether reach the target
-    /*Monkey:if reach the target station, we must sell the goods out.
-    * BUT, We have to realize the productState of the target station.
-    * If there is product for selling, we buy?
-    * No matter we buy or not, we have change the state of robot,and change its radius!!!!
-    */
-   if(task.targetStationId == -1){ return ""; }
+    if(task.targetStationId == -1){ return ""; }
     if (stationId != -1 && stationId == task.targetStationId) { // reach the target station
         if(state == PICK_UP){
             return Buy();
@@ -91,16 +84,18 @@ string Robot::ToTarget(vector<shared_ptr<Robot>>& robots){
         }
     }
 
-    string res = "";
     // step2: Using the DWA to plan the linespeed and anglespeed of the next frame.
-    //count the limit of acceleration
+    string res = "";
+    //calculate the limit of acceleration
     lineAcceleration = MAX_LINE_ACCELERATION(radius);
     angleAcceleration = MAX_ANGLE_ACCELERATION(radius);
     //record the other robots as the obstacle
     obstacle = ObstacleRecord(robots);
     //record the current operating state
     CurrentStateRecord();
+    //Using the DWA to decide the best speed of next frame according to the  current state.
     best_speed = DWA(currentState);
+    //output the speed
     if (best_speed[0] != currentState.current_linespeed){ res += Forward(best_speed[0]); }
     if (best_speed[1] != currentState.current_anglespeed){ res += Rotate(best_speed[1]); }
     return res;
@@ -122,15 +117,11 @@ void Robot::ChangeStateTo(RobotState _state){
     }
 }
 
-// Monkey: DWA
-
-vector<vector<double>> Robot::ObstacleRecord(vector<shared_ptr<Robot>>& robots) {
-    vector<vector<double>> res;
-    for(int idx = 0; idx < robots.size(); ++idx){
-        if(robots[idx]->id != id){
-            res.push_back({robots[idx]->x, robots[idx]->y, robots[idx]->head});
-        }
-    }
+vector<OperatingState> Robot::ObstacleRecord(vector<shared_ptr<Robot>>& robots) {
+    vector<OperatingState> res;
+    for (int idx = 0; idx < robots.size(); ++idx)
+        if (robots[idx]->id != id)
+            res.push_back(robots[idx]->currentState);
     return res;
 }
 
@@ -140,16 +131,17 @@ void Robot::CurrentStateRecord() {
     currentState.current_head = head;
     currentState.current_linespeed = sqrt(lineSpeedX * lineSpeedX + lineSpeedY * lineSpeedY);
     currentState.current_anglespeed = angleSpeed;
+    currentState.current_good = goodType;
 }
 
-//DWA
+
 vector<double> Robot::DWA(const OperatingState& currentState)
 {
     vector<double> dw;     //dw[0] means minlinespeed，dw[1] means maxlinespeed，dw[2] means minanglespeed，dw[3] means maxanglespeed
     //count the DynamicWindow
     dw = DynamicWindow(currentState);
     //select the best speed within dw
-    vector<double> res = BestSpeed(currentState, dw);
+    vector<double> res = BestSpeed(currentState, dw, obstacle);
     return res;
 }
 
@@ -171,17 +163,17 @@ vector<double> Robot::DynamicWindow(const OperatingState& currentState)
 }
 
 //select the best speed within dw
-vector<double> Robot::BestSpeed(const OperatingState& currentState, const vector<double>& dw)
+vector<double> Robot::BestSpeed(const OperatingState& currentState, const vector<double>& dw, vector<OperatingState>& obstacle)
 {
     vector<double> res = { 0, 0 };
     vector<OperatingState> traceTmp;//the trace of prediction
-    double min_cost = 100000000;
-    double final_cost = 0;
-    double angle_cost = 0;
-    double speed_cost = 0;
-    double obstacle_cost = 0;
-    double distance_cost = 0;
-    double transborder_cost = 0;
+    double min_cost = 10000.0;
+    double final_cost = 0.0;
+    double angle_cost = 0.0;
+    double speed_cost = 0.0;
+    double distance_cost = 0.0;
+    double obstacle_cost = 0.0;
+    double transborder_cost = 0.0;
     for (double i = dw[0]; i < dw[1]; i += LINE_SPEED_RESOLUTION)
     {
         for (double j = dw[2]; j < dw[3]; j += ANGLE_SPEED_RESOLUTION)
@@ -191,11 +183,11 @@ vector<double> Robot::BestSpeed(const OperatingState& currentState, const vector
             TracePrediction(currentState, i, j, traceTmp);
             //count the cost
             angle_cost = ANGLE_COST_GAIN * AngleCost(traceTmp);
-            speed_cost = SPEED_COST_GAIN * (MAX_LINE_SPEED - traceTmp.back().current_linespeed);
-            obstacle_cost = OBSTACLE_COST_GAIN * ObstacleCost(traceTmp, obstacle);
+            speed_cost = SPEED_COST_GAIN * SpeedCost(traceTmp);
             distance_cost = DISTANCE_COST_GAIN * DistanceCost(traceTmp);
+            obstacle_cost = OBSTACLE_COST_GAIN * ObstacleCost(traceTmp, obstacle);
             transborder_cost = TRANSBORDER_COST_GAIN * TransborderCost(traceTmp);
-            final_cost = angle_cost + speed_cost + obstacle_cost + distance_cost;
+            final_cost = angle_cost + speed_cost + distance_cost + obstacle_cost + transborder_cost;
 
             if (final_cost < min_cost)
             {
@@ -203,29 +195,30 @@ vector<double> Robot::BestSpeed(const OperatingState& currentState, const vector
                 res[0] = i;
                 res[1] = j;
             }
-            if (res[0] < 0.001 && currentState.current_linespeed < 0.001)
-                res[1] = currentState.current_anglespeed+0.9*angleAcceleration*PREDICT_TIME;//0.9 for the bias. 
+            //when the best linespeed is zero or smaller than zero, we let it rotate
+            if (res[0] < LINE_SPEED_RESOLUTION && currentState.current_linespeed < LINE_SPEED_RESOLUTION)
+            {
+                srand(time);
+                double randnum = (rand()%10) / 10.0;
+                res[1] = currentState.current_anglespeed + randnum * angleAcceleration * PREDICT_TIME;
+            }
         }
     }
-    //cout << "best_speed:" << res[0] << ",   " << res[1] << endl;
     return res;
 }
 
 // Predict the trace of a suitable time
 void Robot::TracePrediction(const OperatingState& currentState, const double& linespeed, const double& anglespeed, vector<OperatingState>& traceTmp)
 {
-    double time = 0;
+    double t = 0;
     OperatingState nextState = currentState;
     nextState.current_linespeed = linespeed;
     nextState.current_anglespeed = anglespeed;
-    while (time < PREDICT_TIME)
+    while (t < PREDICT_TIME)
     {
         nextState = MotionModel(nextState, linespeed, anglespeed);
-        //the code of check state
-        // if (aaa)
-        //     cout << "nextState:(" << nextState.current_x << ", " << nextState.current_y << ", " << nextState.current_head << ")" << nextState.current_linespeed << "  " << nextState.current_anglespeed << endl;
         traceTmp.push_back(nextState);
-        time += PREDICT_CYCLE_TIME;
+        t += PREDICT_CYCLE_TIME;
     }
 }
 
@@ -241,75 +234,46 @@ OperatingState Robot::MotionModel(const OperatingState& currentState, const doub
     return nextState;
 }
 
-// count the angle cost
-//increase the cost when near the target
-//decrease the cost when near the wall
-//decrease the cost when near the other robots
+//calculate the angle cost
+//How to stop the robots rotating but not getting closer to the target? HELP! HELP! HELP!
 double Robot::AngleCost(const vector<OperatingState>& traceTmp)
 {
     double error_head = atan2(task.targetY - traceTmp.back().current_y, task.targetX - traceTmp.back().current_x);
     double angle_cost = error_head - traceTmp.back().current_head;
-    //    cout << "error_head :" << error_head << "    head:" << traceTmp.back().current_head;
+    //DON NOT CARE ABOUT THE ANGLESPEED
     angle_cost = atan2(sin(angle_cost), cos(angle_cost));
 
-    double times = 1.0;
-    double distance1;
-    distance1 = sqrt(pow(task.targetX - traceTmp.back().current_x, 2) + pow(task.targetY - traceTmp.back().current_y, 2));
-    if (distance1 < 20.0 && distance1 >= 10.0) times = 10;
-    if (distance1 < 10.0 && distance1 >= 5.0) times = 100;
-    if (distance1 < 5.0 && distance1 >= 1.0) times = 1000;
-    if (distance1 < 1.0) times = 10000;
+    angle_cost = abs(angle_cost);//-PI to PI
+    return angle_cost;
+}
 
-    /*if (traceTmp.back().current_x < 0.6 || traceTmp.back().current_x > 50-0.6 || 
-        traceTmp.back().current_y < 0.6 || traceTmp.back().current_y > 50-0.6)
-        times = 0;*/
-
-    double distance2;
-    for (int i = 0; i < obstacle.size(); i++) {
-        for (int j = 0; j < traceTmp.size(); j++) {
-            distance2 = sqrt(pow(obstacle[i][0] - traceTmp[j].current_x, 2) + pow(obstacle[i][1] - traceTmp[j].current_y, 2));
-            if (distance2 < 1.2) {times = 0; break;}
-        }
-    }
-    
-    angle_cost *= time;
-
-    //    cout << "    final:" << angle_cost << endl;
-    if (angle_cost >= 0)
-        return angle_cost;
-    else
-        return -angle_cost;
+double Robot::SpeedCost(const vector<OperatingState>& traceTmp)
+{
+    double speed_cost = MAX_LINE_SPEED - traceTmp.back().current_linespeed;
+    return speed_cost;//0 to 8
 }
 
 double Robot::DistanceCost(const vector<OperatingState>& traceTmp)
 {
-    double distance = sqrt(pow(task.targetX - traceTmp.back().current_x, 2) + pow(task.targetY - traceTmp.back().current_y, 2));
-    double times = 1.;
-    if (distance < 10.0 && distance >= 5.0) times = 2;
-    if (distance < 5.0 && distance >= 1.0) times = 10;
-    if (distance < 1.0 && distance >= 0.6) times = 100;
-    if (distance < 0.6 && distance >= 0.5) times = 1000;
-    if (distance < 0.5) times = 10000;
-    return distance;
+    double distance_cost = sqrt(pow(task.targetX - traceTmp.back().current_x, 2) + pow(task.targetY - traceTmp.back().current_y, 2));
+    return distance_cost;//0 to 50*sqrt(2)
 }
 
 //count the obstacle cost
-double Robot::ObstacleCost(const vector<OperatingState>& traceTmp, vector<vector<double>>& obstacle)
+double Robot::ObstacleCost(const vector<OperatingState>& traceTmp, vector<OperatingState>& obstacle)
 {
-    double res = 0.0;
-    double distance;
+    double obstacle_cost = 0.0;
+    double distance = 0.0;
     for (int i = 0; i < obstacle.size(); i++) {
         for (int j = 0; j < traceTmp.size(); j++) {
-            distance = sqrt(pow(obstacle[i][0] - traceTmp[j].current_x, 2) + pow(obstacle[i][1] - traceTmp[j].current_y, 2));
+            distance = sqrt(pow(obstacle[i].current_x - traceTmp[j].current_x, 2) + pow(obstacle[i].current_y - traceTmp[j].current_y, 2));
             if (distance <= SAFE_RADIUS_BETWEEN_ROBOTS){
-                if (distance >= 1.3) res = max(1000.0/(distance-1.2), res);//0.53*2+0.14=1.2
-                else res = max(10000.0, res);
+                if (distance >= 1.3) obstacle_cost = max(1000.0/(distance-1.2), obstacle_cost);//0.53*2+0.14=1.2
+                else obstacle_cost = max(10000.0, obstacle_cost);
             }
         }
-        //stop the standing between robots.
-        if (abs(abs(traceTmp.back().current_head-obstacle[i][2]) - PI) < 0.01) res = max(res, 1000000.0);
     }
-    return res;
+    return obstacle_cost;
 }
 
 //count the transborder cost
