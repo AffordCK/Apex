@@ -1,6 +1,7 @@
 #include "global.h"
 
 const int LEFT_FRAME = (3 * 60 - 3) * 50;
+const int DELIVER_HIGH_FRAME = (3 * 60 - 20) * 50;
 
 const int MAP_ROWS = 100;
 const int MAP_COLS = 100;

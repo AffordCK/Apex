@@ -35,11 +35,13 @@ public:
     bool AssignTaskBasedOnProfit(int robotId);
     void BuyAfterSell(int robotId);
     bool FindAnotherTargetStation(int robotId, int goodType, int stationIdMask = -1);
+    bool AssignTaskInTheEnd(int robotId);
     void ChangeTaskDuringPickUp(int robotId);
 
     bool CheckTaskTable(int robotId, int goodType, int stationId, RobotState sate);
     bool CheckTaskAvailable(int robotId); // vertify the task of robot robotiId
     bool CheckTaskReachable(int robotId); // if the robotId can't reach the target, just change to other station 
+    bool CheckCloserRobot(int robotId, int stationId);
     
     void AssignTask(int robotId, int goodType, int midStationId, int targetStationId);
     void ClearRobotTask(int robotId);
@@ -58,7 +60,7 @@ public:
 private:
     ll frameId, coins;
     stringstream command;
-    unordered_map<int, vector<int>> typeToStations;     // type to station's id
+    unordered_map<int, vector<int>> productToStations;     // type to station's id
     unordered_map<int, vector<int>> sourceToStations; // source to station
     unordered_map<int, int> productCount; // productCount
     vector<shared_ptr<Station>> stations;
