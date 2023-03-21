@@ -325,6 +325,9 @@ bool Scheduler::FindAnotherTargetStation(int robotId, int goodType,  int station
     return targetStationId != -1;
 }
 
+/**
+ * @brief change the task during the  robot's during pick up
+ */
 void Scheduler::ChangeTaskDuringPickUp(int robotId){
     vector<int> oldTask = taskTable[robotId];
     ClearRobotTask(robotId);
