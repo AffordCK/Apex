@@ -47,6 +47,7 @@ public:
     
     void UpdateStationStateTemp(int goodType, int stationId);
     void IncrementProductCount(int stationId);
+    void DecrementProductCount(int goodType);
     void ClearProductCount();
     
     double EucliDistance(int Idx1, int Idx2, bool flag);
