@@ -264,7 +264,9 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
         profits[stationId] = profit;
     }
     if(targetStationId != -1){ // if you can't find a target station which means that you can't pick up the goods either
-        AssignTask(robotId, StationsTable[stations[midStationId]->type].product, midStationId, targetStationId);
+        int goodType = StationsTable[stations[midStationId]->type].product;
+        AssignTask(robotId, goodType, midStationId, targetStationId);
+        DecrementProductCount(goodType);
         UpdateRobotTask(robotId);
     }
     return targetStationId != -1;
@@ -285,6 +287,7 @@ void Scheduler::BuyAfterSell(int robotId){
             }
         }
         command << robots[robotId]->Buy();
+        DecrementProductCount(goodType);
         // remember the update the taskTable and RobotTask again
         UpdateRobotTask(robotId); // PICK_UP->DELIVER_GOODS
     }
@@ -431,6 +434,13 @@ void Scheduler::IncrementProductCount(int stationId){
         }
         ++goodType;
     }
+}
+
+/**
+ * @brief when deliver to the target, then decrement the product
+ */
+void Scheduler::DecrementProductCount(int goodType){
+    --productCount[goodType];
 }
 
 /**
