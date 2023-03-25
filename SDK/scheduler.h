@@ -44,8 +44,7 @@ public:
     bool CheckTaskTable(int robotId, int goodType, int stationId, RobotState sate);
     bool CheckTaskAvailable(int robotId); // vertify the task of robot robotiId
     bool CheckTaskReachable(int robotId); // if the robotId can't reach the target, just change to other station 
-    bool CheckCloserRobot(int robotId, int stationId);
-    
+
     void AssignTask(int robotId, int goodType, int midStationId, int targetStationId);
     void ClearRobotTask(int robotId);
     void UpdateRobotTask(int robotId);

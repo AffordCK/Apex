@@ -11,10 +11,10 @@ static const double MAX_ANGLE_FORCE = 50;
 static const double LINE_SPEED_RESOLUTION = 0.02;
 static const double ANGLE_SPEED_RESOLUTION = 0.02;
 static const double PREDICT_CYCLE_TIME = 0.02;
-static const double PREDICT_TIME = PREDICT_CYCLE_TIME * 40;
+static const double PREDICT_TIME = PREDICT_CYCLE_TIME * 20;
 
 static const double ANGLE_COST_GAIN = 250;//(0 to PI)
-static const double SPEED_COST_GAIN = 2;//(0 to 8), not zero is ok
+static const double SPEED_COST_GAIN = 8;//(0 to 8), not zero is ok
 static const double DISTANCE_COST_GAIN = 50;//(0 to 30)
 static const double OBSTACLE_COST_GAIN = 1;
 static const double TRANSBORDER_COST_GAIN = 1;

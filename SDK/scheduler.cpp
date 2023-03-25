@@ -167,6 +167,7 @@ static const double FinalProductProfitWeight = 100.0;
 static const double ProductCountWeight = -100.0;
 static const double RobotPickUpCount = -1500;
 static const double StationCountWeight = -500;
+static const double BaseToFinalCost = -10000;
 
 /**
  * @brief Assign robot's task based on profit, return true if the task assigned successfulyly
@@ -221,10 +222,10 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
                                                          __builtin_popcount(stations[target]->sourceState));
             }
             // step9: calculate the profit that the final product will bring
-            if(stationType < OnlyTakeInStation || goodType < HighProfitProduct){
-                profitTemp += NextProductProfitWeight * GoodsTable[StationsTable[stationType].product].profit;
-            }else{
+            if(stationType >= OnlyTakeInStation && goodType >= HighProfitProduct){
                 profitTemp += FinalProductProfitWeight * GoodsTable[goodType].profit;
+            }else{
+                profitTemp += NextProductProfitWeight * GoodsTable[StationsTable[stationType].product].profit;
             }
             
             // step10: chech whether the target product is need by others, this should influence 1, 2, 3
@@ -238,10 +239,16 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
             // step11: there are excess products, then try others
             if(nextProduct < HighProfitProduct){
                 profitTemp += ProductCountWeight * productCount[nextProduct];
+            }else{
+                profitTemp += FinalProductProfitWeight * GoodsTable[nextProduct].profit;
             }
 
             // step12: if there are fewer station to produce, then you should improve its producing
-            profitTemp += StationCountWeight * productToStations[nextProduct].size();
+            if(goodType <= BaseProfitProduct && stationType >= OnlyTakeInStation){
+                profitTemp += BaseToFinalCost;
+            }else{
+                profitTemp += StationCountWeight * productToStations[nextProduct].size();
+            }
 
             if(maxProfitTemp < profitTemp){
                 maxProfitTemp = profitTemp;
@@ -277,7 +284,7 @@ void Scheduler::BuyAfterSell(int robotId){
     if(stations[stationId]->productState != 1){ return; }// the station has no product, then return immediately
     if(FindAnotherTargetStation(robotId, goodType)){ // AVAILABLE -> PICK_UP
         // if find the targetStation, then deprive other robot to pick up this product
-        if((3 * FRAME_PER_SECOND *stationDistance[robots[robotId]->stationId][taskTable[robotId][2]] / MAX_LINE_SPEED + frameId) >= MAX_FRAME){
+        if((5 * FRAME_PER_SECOND *stationDistance[robots[robotId]->stationId][taskTable[robotId][2]] / MAX_LINE_SPEED + frameId) >= MAX_FRAME){
             ClearRobotTask(robotId);
             return;
         }
@@ -359,7 +366,7 @@ bool Scheduler::AssignTaskInTheEnd(int robotId){
                 int stationType = stations[target]->type;
                 if(stationType < OnlyTakeInStation &&
                         (CheckIncludeBit2(stations[target]->sourceState, 1 << goodType) || CheckTaskTable(robotId, goodType, target, DELIVER_GOODS)
-                            || (3 * FRAME_PER_SECOND *stationDistance[stationId][target] / MAX_LINE_SPEED + frameId) >= MAX_FRAME)){
+                            || (8 * FRAME_PER_SECOND *stationDistance[stationId][target] / MAX_LINE_SPEED + frameId) >= MAX_FRAME)){
                     // we don't select the target station full of source or being delivered good or far away from the midstation
                     continue;
                 }
@@ -444,21 +451,6 @@ bool Scheduler::CheckTaskTable(int robotId, int goodType, int stationId, RobotSt
 */
 bool Scheduler::CheckTaskReachable(int robotId){
     return frameId - taskTable[robotId][3] < TaskDurationFrame;
-}
-
-static const double CloserDistance = 8.0;
-
-/**
- * @brief return true if it find a cloer robot are working nearby the station
-*/
-bool Scheduler::CheckCloserRobot(int robotId, int stationId){
-    for(size_t idx = 0; idx < robots.size(); ++idx){
-        if(idx == (size_t)robotId || taskTable[idx][2] < 0){ continue; }
-        if(stationDistance[taskTable[idx][2]][stationId] <= CloserDistance){
-            return true;
-        }
-    }
-    return false;
 }
 
 /**
