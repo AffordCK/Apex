@@ -25,6 +25,16 @@ extern "C"{
 
 #define ENABLE_TRY_BLOCK 0 // set one if you want to test the code in huawei cloud online
 
+extern const double PI;
+extern const double MIN_LINE_SPEED;
+extern const double MAX_LINE_SPEED;
+extern const double MIN_ANGLE_SPEED;
+extern const double MAX_ANGLE_SPEED;
+extern const double LIMIT_TARGET;
+extern const double FRAME_PER_SECOND;
+extern const double MIN_SECOND;
+
+extern const ll MAX_FRAME;
 extern const int LEFT_FRAME;
 extern const int DELIVER_HIGH_FRAME;
 

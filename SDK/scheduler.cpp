@@ -1,6 +1,7 @@
 #include "scheduler.h"
 
 static int HighProfitProduct = 0;
+static int BaseProfitProduct = 3;
 
 /**
  * @brief Construct a new Scheduler:: Scheduler object
@@ -95,6 +96,7 @@ void Scheduler::Work(){
                     }else{ // the target is not reachable
                         robots[robotIdx]->state = PICK_UP;
                         if(!FindAnotherTargetStation(robotIdx, robots[robotIdx]->goodType, taskTable[robotIdx][2])){ // try not to reach here
+                            if(robots[robotIdx]->goodType >= HighProfitProduct){ continue; } // don't destroy the product with high product
                             command << robots[robotIdx]->Destroy();
                             ClearRobotTask(robotIdx);
                             goto assign;
@@ -103,7 +105,9 @@ void Scheduler::Work(){
                     // support buy immediately after sell product
                     command << robots[robotIdx]->ToTarget(robots);
                     if(robots[robotIdx]->state != AVAILABLE || frameId >= LEFT_FRAME){ continue; }
-                    UpdateStationStateTemp(robots[robotIdx]->goodType, robots[robotIdx]->task.targetStationId); // avoid phantom reading
+                    if(robots[robotIdx]->task.targetStationId > -1){
+                        UpdateStationStateTemp(robots[robotIdx]->goodType, robots[robotIdx]->task.targetStationId); // avoid phantom reading
+                    }
                     ClearRobotTask(robotIdx); // if finish the job
                     BuyAfterSell(robotIdx);
                 }
@@ -149,32 +153,20 @@ assign:
     }
 }
 
-/**
- * @brief Get the The Station Type Base On Good object
- */
-static vector<int> GetTheStationTypeBaseOnGood(int goodType){
-    vector<int> ret;
-    int goodBit = (1 << goodType);
-    for(int stationTypeIdx = (int)StationsTable.size() - 1; stationTypeIdx > 0; --stationTypeIdx){
-        if(CheckIncludeBit2(StationsTable[stationTypeIdx].source, goodBit)){
-            ret.emplace_back(stationTypeIdx);
-        }
-    }
-    return ret;
-}
-
-static const double MinCost = -100000.0;
-static const double DistancePickUpWeight = -20; // distance to pick up the good
+static const double MinCost = -1000000.0;
+static const double DistancePickUpWeight = -10; // distance to pick up the good
 static const double FrameToProduceWeight = -0.01; // frame still needed to produce
 static const double ProductProfitWeight = 0.1; // the profit that the good will bring
 static const double HighProfitProductWeight = 1;
 static const double SourceFlagWeight = 10; // the good can be used as a source
-static const double DistanceDeliverWeight = -20; // distance to deliver the good
-static const double SourceNumWeight = -200; // the num of source still need
-static const double NextProductProfitWeight = 0.1; // the profit that the final product will bring, only used in 1~7 stations
-static const double NNextProductProfitWeight = 0.05; // 0.05
+static const double DistanceDeliverWeight = -10; // distance to deliver the good
+static const double SourceNumWeight = -100; // the num of source still need 100
+static const double NextProductProfitWeight = 0.1; // the profit that the final product will bring, only used in 1~7 stations 0.1
+static const double NNextProductProfitWeight = 0.1; // 0.1
 static const double FinalProductProfitWeight = 100.0;   
 static const double ProductCountWeight = -100.0;
+static const double RobotPickUpCount = -1500;
+static const double StationCountWeight = -500;
 
 /**
  * @brief Assign robot's task based on profit, return true if the task assigned successfulyly
@@ -182,11 +174,12 @@ static const double ProductCountWeight = -100.0;
 bool Scheduler::AssignTaskBasedOnProfit(int robotId){
     int midStationId = -1, targetStationId = -1;
     double maxProfit = MinCost;
+    vector<double> profits(stations.size(), MinCost);
     for(int stationId = 0; stationId < (int)stations.size(); ++stationId){
         int goodType = StationsTable[stations[stationId]->type].product, goodBit = 1 << goodType;
         if(goodType == 0){ continue; } // don't pick up in stations 8 and 9
         // step1: check whether the station is assigned to some robot or doesn't have a product
-        if(CheckTaskTable(robotId, goodType, stationId, PICK_UP) || CheckCloserRobot(robotId, stationId) || 
+        if(CheckTaskTable(robotId, goodType, stationId, PICK_UP) ||  
                 (stations[stationId]->productState == 0 && (stations[stationId]->leftFrame > WaitFrame || stations[stationId]->leftFrame == -1))){
             continue;
         }
@@ -196,13 +189,19 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
         // step3: calculate the left frame of the product in stationId
         profit += FrameToProduceWeight * (stations[stationId]->productState == 1? 0: stations[stationId]->leftFrame);
         // step4: calculate the profit that the product will bring
-        if(goodType >= HighProfitProduct){
+        if(goodType >= HighProfitProduct && stations[stationId]->leftFrame == 0){
             profit += HighProfitProductWeight * GoodsTable[goodType].profit;
         }else{
             // step5: calculate the whether the product can be used as a source
             profit += SourceFlagWeight;
             profit += ProductProfitWeight * GoodsTable[goodType].profit;
         }
+
+        // check whether there are other robots pick up the same good(only check in 1, 2, 3 station)
+        if(StationsTable[stations[stationId]->type].product <= BaseProfitProduct){
+            profit += RobotPickUpCount * CountTaskTableBasedOnStation(robotId, stationId);
+        }
+
         int targetStationIdTemp = -1;
         double maxProfitTemp = MinCost;
         for(auto &target: sourceToStations[goodType]){
@@ -217,18 +216,18 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
             // step7: calculate the cost of the deliver distance
             double profitTemp = DistanceDeliverWeight * stationDistance[stationId][target];
             // step8: calculate the num of source still need
-            if(stationType <= (int)GoodsTable.size()){
+            if(stationType <= (int)GoodsTable.size() && stations[target]->leftFrame < (StationsTable[stationType].frames / 2)){
                 profitTemp += SourceNumWeight * (__builtin_popcount(StationsTable[stationType].source) - \
                                                          __builtin_popcount(stations[target]->sourceState));
             }
             // step9: calculate the profit that the final product will bring
-            if(stationType < OnlyTakeInStation){
+            if(stationType < OnlyTakeInStation || goodType < HighProfitProduct){
                 profitTemp += NextProductProfitWeight * GoodsTable[StationsTable[stationType].product].profit;
             }else{
                 profitTemp += FinalProductProfitWeight * GoodsTable[goodType].profit;
             }
             
-            // step10: chech whether the target product is need by others
+            // step10: chech whether the target product is need by others, this should influence 1, 2, 3
             int nextProduct = StationsTable[stations[target]->type].product, nextProductBit = 1 << nextProduct;
             for(auto &need: sourceToStations[nextProduct]){
                 if(!CheckIncludeBit2(stations[need]->sourceState, nextProductBit)){
@@ -240,6 +239,9 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
             if(nextProduct < HighProfitProduct){
                 profitTemp += ProductCountWeight * productCount[nextProduct];
             }
+
+            // step12: if there are fewer station to produce, then you should improve its producing
+            profitTemp += StationCountWeight * productToStations[nextProduct].size();
 
             if(maxProfitTemp < profitTemp){
                 maxProfitTemp = profitTemp;
@@ -255,6 +257,7 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
             midStationId = stationId;
             targetStationId = targetStationIdTemp;
         }
+        profits[stationId] = profit;
     }
     if(targetStationId != -1){ // if you can't find a target station which means that you can't pick up the goods either
         int goodType = StationsTable[stations[midStationId]->type].product;
@@ -269,10 +272,15 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
  * @brief allow the robot buy the product after selling immediately
  */
 void Scheduler::BuyAfterSell(int robotId){
+    if(robots[robotId]->stationId < 0){ return; }
     int stationId = robots[robotId]->stationId, goodType = StationsTable[stations[stationId]->type].product;
     if(stations[stationId]->productState != 1){ return; }// the station has no product, then return immediately
     if(FindAnotherTargetStation(robotId, goodType)){ // AVAILABLE -> PICK_UP
         // if find the targetStation, then deprive other robot to pick up this product
+        if((3 * FRAME_PER_SECOND *stationDistance[robots[robotId]->stationId][taskTable[robotId][2]] / MAX_LINE_SPEED + frameId) >= MAX_FRAME){
+            ClearRobotTask(robotId);
+            return;
+        }
         for(size_t idx = 0; idx < robots.size(); ++idx){
             if(idx == robotId){ continue; }
             if(taskTable[idx][0] == goodType && taskTable[idx][1] == stationId){
@@ -336,19 +344,23 @@ bool Scheduler::AssignTaskInTheEnd(int robotId){
                     (stations[stationId]->productState == 0 && (stations[stationId]->leftFrame > 3 * WaitFrame || stations[stationId]->leftFrame == -1))){
                 continue;
             }
+            // step2: calculate the product with the minimum profit
             double profit = MinCost;
             profit += FrameToProduceWeight * (stations[stationId]->productState == 1? 0: stations[stationId]->leftFrame);
             if(goodType >= HighProfitProduct){
-                profit += HighProfitProductWeight * GoodsTable[goodType].profit;
+                profit += FinalProductProfitWeight * GoodsTable[goodType].profit; // Prioritize the selection of products with the highest profit
             }else{
                 profit += ProductProfitWeight * GoodsTable[goodType].profit;
             }
             int targetStationIdTemp = -1;
             double maxProfitTemp = MinCost;
+            // step3: select the best target station
             for(auto &target: sourceToStations[goodType]){
                 int stationType = stations[target]->type;
                 if(stationType < OnlyTakeInStation &&
-                        (CheckIncludeBit2(stations[target]->sourceState, 1 << goodType) || CheckTaskTable(robotId, goodType, target, DELIVER_GOODS))){
+                        (CheckIncludeBit2(stations[target]->sourceState, 1 << goodType) || CheckTaskTable(robotId, goodType, target, DELIVER_GOODS)
+                            || (3 * FRAME_PER_SECOND *stationDistance[stationId][target] / MAX_LINE_SPEED + frameId) >= MAX_FRAME)){
+                    // we don't select the target station full of source or being delivered good or far away from the midstation
                     continue;
                 }
                 double profitTemp = DistanceDeliverWeight * stationDistance[stationId][target];
@@ -357,6 +369,7 @@ bool Scheduler::AssignTaskInTheEnd(int robotId){
                     targetStationIdTemp = target;
                 }
             }
+            // step4: decide the best plan based on the highest profit
             profit += maxProfitTemp;
             if(maxProfit < profit && targetStationIdTemp != -1 && ((stations[targetStationIdTemp]->type >= OnlyTakeInStation) || 
                     (!CheckIncludeBit2(stations[targetStationIdTemp]->sourceState, 1 << goodType)
@@ -389,12 +402,26 @@ void Scheduler::ChangeTaskDuringPickUp(int robotId){
     }
 }
 
+int Scheduler::CountTaskTableBasedOnStation(int robotId, int stationId){
+    int ret = 0;
+    for(size_t idx = 0; idx < robots.size(); ++idx){
+        if(idx != robotId && taskTable[idx][1] == stationId){
+            ++ret;
+        }
+    }
+    return ret;
+}
+
 /**
  * @brief return true if other robot are doing the same thing
  */
 bool Scheduler::CheckTaskTable(int robotId, int goodType, int stationId, RobotState state){
     if(state == DELIVER_GOODS && stations[stationId]->type >= OnlyTakeInStation){
         // allow deliver goods to 8 and 9 at the same time
+        return false;
+    }
+    if(state == PICK_UP && StationsTable[stations[stationId]->type].product <= BaseProfitProduct){
+        // allow to pick up the same production in 1, 2, 3 type of station
         return false;
     }
     for(size_t idx = 0; idx < robots.size(); ++idx){
@@ -485,6 +512,7 @@ void Scheduler::UpdateRobotTask(int robotId){
         robots[robotId]->SetTarget(stations[taskTable[robotId][2]]->x, stations[taskTable[robotId][2]]->y, \
            taskTable[robotId][2], taskTable[robotId][0], DELIVER_GOODS);
     }
+    taskTable[robotId][3] = frameId;
 }
 
 /**

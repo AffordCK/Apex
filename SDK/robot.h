@@ -69,6 +69,7 @@ public:
     double DistanceCost(const vector<OperatingState>& traceTmp);
     double ObstacleCost(const vector<OperatingState>& traceTmp, vector<OperatingState>& obstacle);
     double TransborderCost(const vector<OperatingState>& traceTmp);
+    double StopStanding(const vector<OperatingState>& traceTmp, vector<OperatingState>& obstacle, const double w1, const double w2);
     
 private:
     RobotState state;

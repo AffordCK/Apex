@@ -1,14 +1,24 @@
 #include "global.h"
 
-const int LEFT_FRAME = (3 * 60 - 3) * 50;
-const int DELIVER_HIGH_FRAME = (3 * 60 - 20) * 50;
+const double PI = 3.14;
+const double MIN_LINE_SPEED = -2;
+const double MAX_LINE_SPEED = 6;
+const double MIN_ANGLE_SPEED = -PI;
+const double MAX_ANGLE_SPEED = PI;
+const double LIMIT_TARGET = 0.4;
+const double FRAME_PER_SECOND = 50;
+const double MIN_SECOND = 0.02;
+
+const ll MAX_FRAME = 3 * 60 * FRAME_PER_SECOND;
+const int LEFT_FRAME = (3 * 60 - 3) * FRAME_PER_SECOND;
+const int DELIVER_HIGH_FRAME = (3 * 60 - 20) * FRAME_PER_SECOND;
 
 const int MAP_ROWS = 100;
 const int MAP_COLS = 100;
 const double MAP_DIV1 = 0.5;
 const double MAP_DIV2 = 0.25;
 
-const int TaskDurationFrame = 50 * 15;
+const int TaskDurationFrame = 50 * 20;
 const int WaitFrame = 50 * 1;
 const int OnlyTakeInStation = 8;
 

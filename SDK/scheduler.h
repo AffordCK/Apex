@@ -31,12 +31,15 @@ public:
     void ReadMap();
     bool ReadFrame();
     void Work();
+    void WorkTemp();
 
     bool AssignTaskBasedOnProfit(int robotId);
     void BuyAfterSell(int robotId);
     bool FindAnotherTargetStation(int robotId, int goodType, int stationIdMask = -1);
     bool AssignTaskInTheEnd(int robotId);
     void ChangeTaskDuringPickUp(int robotId);
+
+    int CountTaskTableBasedOnStation(int robotId, int stationId);
 
     bool CheckTaskTable(int robotId, int goodType, int stationId, RobotState sate);
     bool CheckTaskAvailable(int robotId); // vertify the task of robot robotiId
