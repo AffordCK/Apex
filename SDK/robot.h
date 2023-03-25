@@ -28,11 +28,11 @@ struct RobotTask{
 };
 
 struct OperatingState {
-    double current_x, current_y, current_head, current_linespeed, current_anglespeed, current_good;
-    OperatingState(double _current_x = 0, double _current_y = 0, double _current_head = 0, \
-        double _current_linespeed = 0, double _current_anglespeed = 0, double _current_good = 0) : \
-        current_x(_current_x), current_y(_current_y), current_head(_current_head), \
-        current_linespeed(_current_linespeed), current_anglespeed(_current_anglespeed), current_good(_current_good) {}
+    double current_x, current_y, current_head, current_linespeed, current_anglespeed, current_good, current_distance;
+    OperatingState(double _current_x = 0, double _current_y = 0, double _current_head = 0, double _current_linespeed = 0, \
+    double _current_anglespeed = 0, double _current_good = 0, double _current_distance = 0) : \
+        current_x(_current_x), current_y(_current_y), current_head(_current_head), current_linespeed(_current_linespeed),\
+         current_anglespeed(_current_anglespeed), current_good(_current_good), current_distance(_current_distance) {}
 };
 
 enum RobotState{
@@ -70,6 +70,7 @@ public:
     double ObstacleCost(const vector<OperatingState>& traceTmp, vector<OperatingState>& obstacle);
     double TransborderCost(const vector<OperatingState>& traceTmp);
     double StopStanding(const vector<OperatingState>& traceTmp, vector<OperatingState>& obstacle, const double w1, const double w2);
+    double DistanceToWall(const double& a, const double& b);
     
 private:
     RobotState state;

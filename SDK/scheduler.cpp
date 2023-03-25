@@ -153,7 +153,7 @@ assign:
     }
 }
 
-static const double MinCost = -1000000.0;
+static const double MinCost = -100000.0;
 static const double DistancePickUpWeight = -10; // distance to pick up the good
 static const double FrameToProduceWeight = -0.01; // frame still needed to produce
 static const double ProductProfitWeight = 0.1; // the profit that the good will bring
@@ -183,7 +183,7 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
                 (stations[stationId]->productState == 0 && (stations[stationId]->leftFrame > WaitFrame || stations[stationId]->leftFrame == -1))){
             continue;
         }
-        double profit = MinCost;
+        double profit = 0.0;
         // step2: calculate the distance between the robot and the mid station
         profit += DistancePickUpWeight * EucliDistance(robotId, stationId, false);
         // step3: calculate the left frame of the product in stationId

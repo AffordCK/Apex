@@ -1,6 +1,5 @@
 #include "robot.h"
 
-
 static const double NORMAL_RADIUS = 0.45; // the radius of the robot without goods
 static const double DELIVER_RADIUS = 0.53; // the radius of the robot with goods;
 
@@ -12,18 +11,16 @@ static const double MAX_ANGLE_FORCE = 50;
 static const double LINE_SPEED_RESOLUTION = 0.02;
 static const double ANGLE_SPEED_RESOLUTION = 0.02;
 static const double PREDICT_CYCLE_TIME = 0.02;
-static const double PREDICT_TIME = PREDICT_CYCLE_TIME * 2;
+static const double PREDICT_TIME = PREDICT_CYCLE_TIME * 40;
 
-static const double ANGLE_COST_GAIN = 150;
-static const double SPEED_COST_GAIN = 3;
-static const double DISTANCE_COST_GAIN = 1;
+static const double ANGLE_COST_GAIN = 250;//(0 to PI)
+static const double SPEED_COST_GAIN = 2;//(0 to 8), not zero is ok
+static const double DISTANCE_COST_GAIN = 50;//(0 to 30)
 static const double OBSTACLE_COST_GAIN = 1;
-static const double TRANSBORDER_COST_GAIN = 0.6;
+static const double TRANSBORDER_COST_GAIN = 1;
 
-static const double SAFE_RADIUS_BETWEEN_ROBOTS = 5;
-static const double SAFE_RADIUS_AWAY_BORDER = 0.5;
-
-static const double DANGEROUS_ANGLE = PI /4;
+static const double SAFE_RADIUS_BETWEEN_ROBOTS = DELIVER_RADIUS * 2.5;
+static const double SAFE_RADIUS_AWAY_BORDER = DELIVER_RADIUS;
 
 #define MAX_LINE_ACCELERATION(r) MAX_LINE_FORCE / (DENSITY * PI * r * r)
 #define MAX_ANGLE_ACCELERATION(r) MAX_ANGLE_FORCE / (0.5 * DENSITY * PI * r * r * r * r)
@@ -126,6 +123,7 @@ void Robot::CurrentStateRecord() {
     currentState.current_linespeed = sqrt(lineSpeedX * lineSpeedX + lineSpeedY * lineSpeedY);
     currentState.current_anglespeed = angleSpeed;
     currentState.current_good = goodType;
+    currentState.current_distance = CalculateEucliDistance(x, y, task.targetX, task.targetY);
 }
 
 
@@ -161,7 +159,7 @@ vector<double> Robot::BestSpeed(const OperatingState& currentState, const vector
 {
     vector<double> res = { 0, 0 };
     vector<OperatingState> traceTmp;//the trace of prediction
-    double min_cost = 1000000.0;
+    double min_cost = 30000.0;
     double final_cost = 0.0;
     double angle_cost = 0.0;
     double speed_cost = 0.0;
@@ -189,15 +187,17 @@ vector<double> Robot::BestSpeed(const OperatingState& currentState, const vector
                 res[0] = i;
                 res[1] = j;
             }
-            res[1] = StopStanding(traceTmp, obstacle, res[1], dw[3]);
 
             //when the best linespeed is zero or smaller than zero, we let it rotate
             if (res[0] < LINE_SPEED_RESOLUTION && currentState.current_linespeed < LINE_SPEED_RESOLUTION)
             {
                 srand(time);
-                double randnum = (rand()%10) / 10.0;
+                double randnum = (double)(rand()%10) / 10.0;
+                //res[0] = randnum * lineAcceleration * PREDICT_TIME;
+                res[0] = randnum * dw[1];
                 res[1] = currentState.current_anglespeed + randnum * angleAcceleration * PREDICT_TIME;
             }
+            res[1] = StopStanding(traceTmp, obstacle, res[1], dw[3]);
         }
     }
     return res;
@@ -214,6 +214,8 @@ void Robot::TracePrediction(const OperatingState& currentState, const double& li
     {
         nextState = MotionModel(nextState, linespeed, anglespeed);
         traceTmp.push_back(nextState);
+        if (nextState.current_distance <= 0.3) break;//not 0.4 but 0.3 for the bias
+        if (DistanceToWall(nextState.current_x, nextState.current_y) <= SAFE_RADIUS_AWAY_BORDER) { traceTmp.pop_back(); break;}
         t += PREDICT_CYCLE_TIME;
     }
 }
@@ -227,6 +229,7 @@ OperatingState Robot::MotionModel(const OperatingState& currentState, const doub
     nextState.current_head = currentState.current_head + anglespeed * PREDICT_CYCLE_TIME;
     nextState.current_linespeed = currentState.current_linespeed;
     nextState.current_anglespeed = currentState.current_anglespeed;
+    nextState.current_distance = CalculateEucliDistance(nextState.current_x, nextState.current_y, task.targetX, task.targetY);
     return nextState;
 }
 
@@ -237,8 +240,7 @@ double Robot::AngleCost(const vector<OperatingState>& traceTmp)
     double angle_cost = error_head - traceTmp.back().current_head;
     //DON NOT CARE ABOUT THE ANGLESPEED
     angle_cost = atan2(sin(angle_cost), cos(angle_cost));
-
-    angle_cost = abs(angle_cost);//-PI to PI
+    angle_cost = abs(angle_cost);//0 to PI
     return angle_cost;
 }
 
@@ -251,15 +253,9 @@ double Robot::SpeedCost(const vector<OperatingState>& traceTmp)
 double Robot::DistanceCost(const vector<OperatingState>& traceTmp)
 {
     double distance_cost = 100.0;
-    //for the short prediction time
-    distance_cost = sqrt(pow(task.targetX - traceTmp.back().current_x, 2) + pow(task.targetY - traceTmp.back().current_y, 2));
+    distance_cost = CalculateEucliDistance(task.targetX, task.targetY, traceTmp.back().current_x, traceTmp.back().current_y);
     if (distance_cost >= 30) distance_cost = 30.0;
-    //for the long prediction time
-    /*for (int i = 0; i < obstacle.size(); i++) {
-        double distance_cost = min(distance_cost, sqrt(pow(task.targetX - traceTmp[i].current_x, 2) + pow(task.targetY - traceTmp[i].current_y, 2)));
-    }
-    if (distance_cost >= 30) distance_cost = 30;*/
-    return distance_cost;//0 to 50*sqrt(2)
+    return distance_cost;//0 to 30
 }
 
 //count the obstacle cost
@@ -267,58 +263,27 @@ double Robot::ObstacleCost(const vector<OperatingState>& traceTmp, vector<Operat
 {
     double obstacle_cost = 0.0;
     double distance = 0.0;
-    //for the short prediction time
     for (int i = 0; i < obstacle.size(); i++) {
-        distance = sqrt(pow(obstacle[i].current_x - traceTmp.back().current_x, 2) + pow(obstacle[i].current_y - traceTmp.back().current_y, 2));
-        // double obstacleAngle = atan2(obstacle[i].current_y - traceTmp.back().current_y, obstacle[i].current_x - traceTmp.back().current_x);
-        // double headDelta = abs(traceTmp.back().current_head - obstacleAngle);
-        // if(abs(obstacle[i].current_head - obstacleAngle) < PI / 2){ continue; }
-        // if((obstacleAngle - traceTmp.back().current_head > 0 && PI - obstacleAngle - obstacle[i].current_head > 0) || (
-        //     (obstacleAngle - traceTmp.back().current_head < 0 && PI - obstacleAngle - obstacle[i].current_head < 0)
-        // )){ continue; }
-        // if (distance <= SAFE_RADIUS_BETWEEN_ROBOTS && obstacle[i].current_good > currentState.current_good && headDelta <= DANGEROUS_ANGLE){
-        if (distance <= SAFE_RADIUS_BETWEEN_ROBOTS && obstacle[i].current_good >= currentState.current_good){
-            //if (distance >= 1.3) obstacle_cost = max(1000.0/(distance-1.2) * obstacle[i].current_good, obstacle_cost);//0 to 10000 * (1-9)
-            //else obstacle_cost = max(10000.0 * obstacle[i].current_good, obstacle_cost);
-            if (distance >= 2.5) obstacle_cost = max(1000.0/(distance-1.2), obstacle_cost);//0 to 10000
-            else obstacle_cost = max(10000.0, obstacle_cost); 
+        distance = CalculateEucliDistance(obstacle[i].current_x, obstacle[i].current_y, traceTmp.back().current_x, traceTmp.back().current_y);
+        if (distance / LINE_SPEED_RESOLUTION <= SAFE_RADIUS_BETWEEN_ROBOTS){
+            obstacle_cost = max(10000.0, obstacle_cost); 
         }
     }
-    //for the long prediction time
-    /*for (int i = 0; i < obstacle.size(); i++) {
-        for (int j = 0; j < traceTmp.size(); j++) {
-            distance = sqrt(pow(obstacle[i].current_x - traceTmp[j].current_x, 2) + pow(obstacle[i].current_y - traceTmp[j].current_y, 2));
-            if (distance <= SAFE_RADIUS_BETWEEN_ROBOTS & obstacle[i].current_good > currentState.current_good){
-                if (distance >= 1.3) obstacle_cost = max(1000.0/(distance-1.2) * obstacle[i].current_good, obstacle_cost);//0 to 10000 * (1-9)
-                else obstacle_cost = max(10000.0 * obstacle[i].current_good, obstacle_cost);
-            }
-        }
-    }*/
     return obstacle_cost;
 }
 
 //count the transborder cost
 double Robot::TransborderCost(const vector<OperatingState>& traceTmp)
 {
-    //for the short prediction time
-    if (traceTmp.back().current_x < SAFE_RADIUS_AWAY_BORDER || traceTmp.back().current_x > 50-SAFE_RADIUS_AWAY_BORDER || 
-        traceTmp.back().current_y < SAFE_RADIUS_AWAY_BORDER || traceTmp.back().current_y > 50-SAFE_RADIUS_AWAY_BORDER) {
-        double abs_x = min (traceTmp.back().current_x, 50 - traceTmp.back().current_x);
-        double abs_y = min (traceTmp.back().current_y, 50 - traceTmp.back().current_y);
-        if (min(abs_x, abs_y) >= 0.1) return 1000.0/min(abs_x, abs_y);
-        else return 10000.0;
+    double k = DistanceToWall(traceTmp.back().current_x, traceTmp.back().current_y);
+    /*if (k == traceTmp.back().current_x || k == 50 - traceTmp.back().current_x) 
+    k += 0.5 * pow(traceTmp.back().current_linespeed, 2) / LINE_SPEED_RESOLUTION * abs(cos(traceTmp.back().current_head));
+    else k += 0.5 * pow(traceTmp.back().current_linespeed, 2) / LINE_SPEED_RESOLUTION * abs(sin(traceTmp.back().current_head));*/
+    if (k <= SAFE_RADIUS_AWAY_BORDER){
+        /*if (k >= DELIVER_RADIUS + 0.1) return 1000.0/k;
+        else*/ 
+        return 10000.0;
     }
-    //for the long prediction time
-    /*for (int i = 0; i < traceTmp.size(); i++) {
-        if (traceTmp[i].current_x < SAFE_RADIUS_AWAY_BORDER || traceTmp[i].current_x > 50-SAFE_RADIUS_AWAY_BORDER || 
-        traceTmp[i].current_y < SAFE_RADIUS_AWAY_BORDER || traceTmp[i].current_y > 50-SAFE_RADIUS_AWAY_BORDER)
-        { 
-            double abs_x = min (traceTmp[i].current_x, 50 - traceTmp[i].current_x);
-            double abs_y = min (traceTmp[i].current_y, 50 - traceTmp[i].current_y);
-            if (min(abs_x, abs_y) >= 0.1) return 1000.0/min(abs_x, abs_y);
-            else return 10000.0;
-        }
-    }*/
     return 0;
 }
 
@@ -328,12 +293,20 @@ double Robot::StopStanding(const vector<OperatingState>& traceTmp, vector<Operat
     double distance = 0.0;
     double error_head = 0.0;
     for (int i = 0; i < obstacle.size(); i++) {
-        distance = sqrt(pow(obstacle[i].current_x - traceTmp.back().current_x, 2) + pow(obstacle[i].current_y - traceTmp.back().current_y, 2));
+        distance = CalculateEucliDistance(obstacle[i].current_x, obstacle[i].current_y, x, y);
         error_head = abs(traceTmp.back().current_head - obstacle[i].current_head);
-        if (distance < SAFE_RADIUS_BETWEEN_ROBOTS && abs(error_head - PI) < 0.2) {
-            res = (0.5 + 0.5 * currentState.current_good / 7) * w2;
+        if (distance <= SAFE_RADIUS_BETWEEN_ROBOTS * 1.1) {
+            res = min((1 + 0.5 * currentState.current_good / 7) * (w1+0.5), w2);
             break;
         }
     }
     return res;
+}
+
+// calculate the distance between robot and wall
+double Robot::DistanceToWall(const double& a, const double& b) {
+    double distance = min(a, 50-a);
+    distance = min(distance, b);
+    distance = min(distance, 50-b);
+    return distance;
 }
