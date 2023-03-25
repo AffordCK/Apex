@@ -25,6 +25,8 @@ extern "C"{
 
 #define ENABLE_TRY_BLOCK 0 // set one if you want to test the code in huawei cloud online
 
+extern MapLevel MAP_LEVEL;
+
 extern const double PI;
 extern const double MIN_LINE_SPEED;
 extern const double MAX_LINE_SPEED;

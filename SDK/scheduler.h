@@ -29,9 +29,9 @@ public:
     Scheduler();
 
     void ReadMap();
+    void InitMapLevel();
     bool ReadFrame();
     void Work();
-    void WorkTemp();
 
     bool AssignTaskBasedOnProfit(int robotId);
     void BuyAfterSell(int robotId);

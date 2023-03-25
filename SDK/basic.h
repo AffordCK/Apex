@@ -79,5 +79,13 @@ struct StationInfo{
         frames(_frames), product(_product){}
 };
 
+/**
+ * @brief The Info the map
+ */
+enum MapLevel{
+    CROW,
+    SPARSE,
+};
+
 
 #endif

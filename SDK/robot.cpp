@@ -310,3 +310,14 @@ double Robot::DistanceToWall(const double& a, const double& b) {
     distance = min(distance, 50-b);
     return distance;
 }
+
+void Robot::InitMapLevel(const MapLevel& mapLevel){
+    switch(mapLevel){
+        case CROW:
+            break;
+        case SPARSE:
+            break;
+        default:
+            break;
+    }
+}

@@ -47,8 +47,22 @@ void Scheduler::ReadMap(){
             stationDistance[i][j] = stationDistance[j][i] = EucliDistance(i, j, true);
         }
     }
+    InitMapLevel();
+    Robot::InitMapLevel(MAP_LEVEL);
     ClearProductCount();
     SendOK();
+}
+
+/**
+ * @brief initial Map Level
+ */
+void Scheduler::InitMapLevel(){
+    for(int goodType = 1; goodType < HighProfitProduct; ++goodType){
+        if(productToStations[goodType].size() <= 1){
+            MAP_LEVEL = CROW;
+            break;
+        }
+    }
 }
 
 bool Scheduler::ReadFrame(){
@@ -159,12 +173,13 @@ static const double FrameToProduceWeight = -0.01; // frame still needed to produ
 static const double ProductProfitWeight = 0.1; // the profit that the good will bring
 static const double HighProfitProductWeight = 1;
 static const double SourceFlagWeight = 10; // the good can be used as a source
+static const double OnlySourceGain = 1000;
 static const double DistanceDeliverWeight = -10; // distance to deliver the good
 static const double SourceNumWeight = -100; // the num of source still need 100
 static const double NextProductProfitWeight = 0.1; // the profit that the final product will bring, only used in 1~7 stations 0.1
 static const double NNextProductProfitWeight = 0.1; // 0.1
 static const double FinalProductProfitWeight = 100.0;   
-static const double ProductCountWeight = -100.0;
+static const double ProductCountWeight = -300.0;
 static const double RobotPickUpCount = -1500;
 static const double StationCountWeight = -500;
 static const double BaseToFinalCost = -10000;
@@ -220,6 +235,9 @@ bool Scheduler::AssignTaskBasedOnProfit(int robotId){
             if(stationType <= (int)GoodsTable.size() && stations[target]->leftFrame < (StationsTable[stationType].frames / 2)){
                 profitTemp += SourceNumWeight * (__builtin_popcount(StationsTable[stationType].source) - \
                                                          __builtin_popcount(stations[target]->sourceState));
+                if(__builtin_popcount(stations[target]->sourceState) == 1){ // we only need this product to produce
+                    profitTemp += OnlySourceGain;
+                }
             }
             // step9: calculate the profit that the final product will bring
             if(stationType >= OnlyTakeInStation && goodType >= HighProfitProduct){

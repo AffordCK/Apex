@@ -71,7 +71,9 @@ public:
     double TransborderCost(const vector<OperatingState>& traceTmp);
     double StopStanding(const vector<OperatingState>& traceTmp, vector<OperatingState>& obstacle, const double w1, const double w2);
     double DistanceToWall(const double& a, const double& b);
-    
+
+    static void InitMapLevel(const MapLevel& mapLevel);
+
 private:
     RobotState state;
     int id, goodType, stationId;

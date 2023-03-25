@@ -1,5 +1,7 @@
 #include "global.h"
 
+MapLevel MAP_LEVEL = SPARSE;
+
 const double PI = 3.14;
 const double MIN_LINE_SPEED = -2;
 const double MAX_LINE_SPEED = 6;
